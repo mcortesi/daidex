@@ -1,9 +1,9 @@
-import * as React from "react";
-import { RenderMapper } from ".";
-import { Address, Operation } from "../../model/base";
-import { networkFee, txEtherRange } from "../../model/widget-state/selectors";
-import "./../Widget.css";
-import { Token } from "../../model/widget";
+import * as React from 'react';
+import { RenderMapper } from '.';
+import { Address, Operation } from '../../model/base';
+import { networkFee, txEtherRange } from '../../model/widget-state/selectors';
+import './../Widget.css';
+import { Token } from '../../model/widget';
 
 export interface TradeSuccessScreenProps {
   operation: Operation;
@@ -18,12 +18,12 @@ export interface TradeSuccessScreenProps {
 export const mapper: RenderMapper<TradeSuccessScreenProps> = store => ws => {
   return {
     tradeable: ws.tradeable,
-    fromAddress: ws.walletDetails!.address,
+    fromAddress: ws.walletDetails!.address!,
     amount: ws.amount,
     operation: ws.operation,
     txEtherRange: txEtherRange(ws),
     networkFee: networkFee(ws),
-    tradeTxHash: ws.tradeTxHash!
+    tradeTxHash: ws.tradeTxHash!,
   };
 };
 

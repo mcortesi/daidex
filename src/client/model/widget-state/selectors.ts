@@ -36,4 +36,24 @@ export const networkFee = (ws: WidgetState) => {
   };
 };
 
+export const getAllowanceTxHash = (ws: WidgetState) => ws.approvalTxHash;
+
 export const amountTD = (ws: WidgetState) => toTokenDecimals(ws.amount, ws.tradeable.decimals);
+
+export interface RequestAllowanceProps {
+  tokenSymbol: string;
+  volume: string;
+  txHash: string | null;
+}
+
+export const getDAIAllowanceInfo = (state: WidgetState): RequestAllowanceProps => ({
+  tokenSymbol: 'DAI',
+  volume: txDAIVolume(state),
+  txHash: getAllowanceTxHash(state),
+});
+
+export const getTokenAllowanceInfo = (state: WidgetState): RequestAllowanceProps => ({
+  tokenSymbol: state.tradeable.symbol,
+  volume: state.amount,
+  txHash: getAllowanceTxHash(state),
+});
