@@ -66,14 +66,14 @@
       "type": "function"
     }
   ],
-  "bytecode": "0x608060405234801561001057600080fd5b50610114806100206000396000f30060806040526004361060485763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663321a9ab98114604d578063ce68736114608b575b600080fd5b608973ffffffffffffffffffffffffffffffffffffffff60048035821691602480359260443591820192910135906064358116906084351660d7565b005b348015609657600080fd5b5060896004803573ffffffffffffffffffffffffffffffffffffffff908116916024803592604435926064359283019201359060843581169060a4351660df565b505050505050565b505050505050505600a165627a7a723058209b4b1deaf662bdd5c5137570c6036ae831d6cb8f0d137ffe65446d9637e6d33d0029",
-  "deployedBytecode": "0x60806040526004361060485763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663321a9ab98114604d578063ce68736114608b575b600080fd5b608973ffffffffffffffffffffffffffffffffffffffff60048035821691602480359260443591820192910135906064358116906084351660d7565b005b348015609657600080fd5b5060896004803573ffffffffffffffffffffffffffffffffffffffff908116916024803592604435926064359283019201359060843581169060a4351660df565b505050505050565b505050505050505600a165627a7a723058209b4b1deaf662bdd5c5137570c6036ae831d6cb8f0d137ffe65446d9637e6d33d0029",
+  "bytecode": "0x608060405234801561001057600080fd5b50610114806100206000396000f30060806040526004361060485763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663321a9ab98114604d578063ce68736114608b575b600080fd5b608973ffffffffffffffffffffffffffffffffffffffff60048035821691602480359260443591820192910135906064358116906084351660d7565b005b348015609657600080fd5b5060896004803573ffffffffffffffffffffffffffffffffffffffff908116916024803592604435926064359283019201359060843581169060a4351660df565b505050505050565b505050505050505600a165627a7a72305820842458d02946652e76f46927fe5d61bf4d7c11fb26f78066408297ecdb2f2e8e0029",
+  "deployedBytecode": "0x60806040526004361060485763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663321a9ab98114604d578063ce68736114608b575b600080fd5b608973ffffffffffffffffffffffffffffffffffffffff60048035821691602480359260443591820192910135906064358116906084351660d7565b005b348015609657600080fd5b5060896004803573ffffffffffffffffffffffffffffffffffffffff908116916024803592604435926064359283019201359060843581169060a4351660df565b505050505050565b505050505050505600a165627a7a72305820842458d02946652e76f46927fe5d61bf4d7c11fb26f78066408297ecdb2f2e8e0029",
   "sourceMap": "798:334:1:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;798:334:1;;;;;;;",
   "deployedSourceMap": "798:334:1:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;821:138;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;965:165;;8:9:-1;5:2;;;30:1;27;20:12;5:2;-1:-1;965:165:1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;821:138;;;;;;;:::o;965:165::-;;;;;;;;:::o",
   "source": "pragma solidity 0.4.23;\n\n//import \"zos-lib/contracts/migrations/Migratable.sol\";\n\n\ncontract IStandardToken {\n  function transfer(address to, uint256 value) public returns (bool) {}\n  function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {}\n  function approve(address _spender, uint256 _value) public returns (bool) {}\n}\n\ncontract IWeth is IStandardToken {\n    function deposit() public payable {}\n    function withdraw(uint wad) public {}\n}\n\ncontract IDaiMatchingMarket {\n    function sellAllAmount(IStandardToken pay_gem, uint pay_amt, IStandardToken buy_gem, uint min_fill_amount) public returns (uint fill_amt) {}\n    function buyAllAmount(IStandardToken buy_gem, uint buy_amt, IStandardToken pay_gem, uint max_fill_amount) public returns (uint fill_amt) {}\n}\n\ncontract IDexdex {\n    function buy(IStandardToken tradeable, uint volume, bytes ordersData, address destinationAddr, address affiliate\n    ) external payable {}\n\n    function sell(IStandardToken tradeable,\n    uint volume,\n    uint volumeEth,\n    bytes ordersData,\n    address destinationAddr,\n    address affiliate\n  ) external {}\n}\n\ncontract DaiDex /*is Migratable*/ {\n\n    IDaiMatchingMarket daiMatchingMarket;\n    IDexdex dexdex;\n    IStandardToken dai;\n    IWeth weth;\n\n    function DaiDex(\n      address daiMatchingMarketAddress,\n      address dexdexAddress,\n      address daiAddress,\n      address wethAddress\n    ) {\n      daiMatchingMarket = IDaiMatchingMarket(daiMatchingMarketAddress);\n      dexdex = IDexdex(dexdexAddress);\n      dai = IStandardToken(daiAddress);\n      weth = IWeth(wethAddress);\n    }\n\n\n  /*\n   * Buys ECR20 Token using DAI, only if the exchanged amount of DAI to ETH doesn't exceed a given ETH amount.\n   */\n  function buy(IStandardToken tokenToBuy, uint volumeTokenToBuy, uint volumeDai, uint volumeEth, bytes ordersData) {\n    // Obtain Dai From Sender. Sender previously executed a transaction approving Dai transfer to this contract.\n    require(dai.transferFrom(msg.sender, this, volumeDai));\n\n    dai.approve(address(daiMatchingMarket), volumeDai);\n    uint volumeWethEffective = daiMatchingMarket.sellAllAmount(dai, volumeDai, weth, volumeEth);\n    require(volumeWethEffective >= volumeEth, \"Effective Eth Volume is lower than expected\");\n    weth.withdraw(volumeWethEffective);\n\n    dexdex.buy.value(volumeWethEffective)(tokenToBuy, volumeTokenToBuy, ordersData, msg.sender, address(0));\n\n  }\n\n  function sell(IStandardToken tokenToSell, uint volumeTokenToSell, uint volumeDai, uint volumeEth, bytes ordersData) {\n\n    require(tokenToSell.transferFrom(msg.sender, this, volumeTokenToSell));\n\n    tokenToSell.approve(address(dexdex), volumeTokenToSell);\n    dexdex.sell(tokenToSell, volumeTokenToSell, volumeEth, ordersData, this, address(0));\n\n    weth.deposit.value(volumeEth)();\n    weth.approve(address(daiMatchingMarket), volumeEth);\n    uint volumeDaiEffective = daiMatchingMarket.buyAllAmount(dai, volumeDai, weth, volumeEth);\n    require(volumeDaiEffective >= volumeDai);\n\n    require(dai.transfer(msg.sender, volumeDaiEffective));\n  }\n\n\n}\n",
-  "sourcePath": "/home/daniel/projects/daidex/contracts/DaiDex.sol",
+  "sourcePath": "/Users/mcortesi/Work/hackathon/daidex/contracts/DaiDex.sol",
   "ast": {
-    "absolutePath": "/home/daniel/projects/daidex/contracts/DaiDex.sol",
+    "absolutePath": "/Users/mcortesi/Work/hackathon/daidex/contracts/DaiDex.sol",
     "exportedSymbols": {
       "DaiDex": [
         1413
@@ -4253,7 +4253,7 @@
     "src": "0:3085:1"
   },
   "legacyAST": {
-    "absolutePath": "/home/daniel/projects/daidex/contracts/DaiDex.sol",
+    "absolutePath": "/Users/mcortesi/Work/hackathon/daidex/contracts/DaiDex.sol",
     "exportedSymbols": {
       "DaiDex": [
         1413
@@ -8438,5 +8438,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-05-26T22:43:55.938Z"
+  "updatedAt": "2018-05-26T23:45:45.949Z"
 }
