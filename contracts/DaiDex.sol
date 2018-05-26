@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.4.23;
 
 //import "zos-lib/contracts/migrations/Migratable.sol";
 
@@ -33,11 +33,23 @@ contract IDexdex {
 }
 
 contract DaiDex /*is Migratable*/ {
-      IDaiMatchingMarket daiMatchingMarket = IDaiMatchingMarket(0x14fbca95be7e99c15cc2996c6c9d841e54b79425);
-      IDexdex dexdex = IDexdex(0x0c577fBF29f8797D9D29A33dE59001B872a1d4dc);
-      IStandardToken dai = IStandardToken(0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359);
-      IWeth weth = IWeth(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
+    IDaiMatchingMarket daiMatchingMarket;
+    IDexdex dexdex;
+    IStandardToken dai;
+    IWeth weth;
+
+    function DaiDex(
+      address daiMatchingMarketAddress,
+      address dexdexAddress,
+      address daiAddress,
+      address wethAddress
+    ) {
+      daiMatchingMarket = IDaiMatchingMarket(daiMatchingMarketAddress);
+      dexdex = IDexdex(dexdexAddress);
+      dai = IStandardToken(daiAddress);
+      weth = IWeth(wethAddress);
+    }
 
 
   /*
