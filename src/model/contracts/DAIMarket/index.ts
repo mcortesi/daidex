@@ -1,8 +1,7 @@
-import Eth from 'ethjs-query';
-import EthContract, { TxOptions, TxHash } from 'ethjs-contract';
 import { BN } from 'bn.js';
+import EthContract from 'ethjs-contract';
+import Eth from 'ethjs-query';
 import { Address } from '../../base';
-
 import ABI from './MatchingMarket.abi';
 
 const MatchingMarketAddress = '0x14FBCA95be7e99C15Cc2996c6C9d841e54B79425';

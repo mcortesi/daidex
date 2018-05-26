@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Select, { Option } from 'react-select';
 import 'react-select/dist/react-select.css';
 import { toEther } from '../model/units';
 import { Wallet } from '../model/wallets';

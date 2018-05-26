@@ -5,10 +5,9 @@ import { WidgetEpic } from '.';
 import { Operation } from '../../base';
 import { TransactionInfo } from '../../orderbook';
 import { Wallet } from '../../wallets';
-import { TransactionState, TxStage, computeGasPrice, Token } from '../../widget';
+import { Token, TransactionState, TxStage, computeGasPrice } from '../../widget';
 import { setTransactionState } from '../actions';
 import { filterAction } from './utils';
-import { promiseFactory } from '../../../utils/rx';
 
 async function executeTransaction(
   wallet: Wallet,
@@ -25,12 +24,13 @@ async function executeTransaction(
       const allowanceTxId = await wallet.approveDAIAllowance(daiVolume, gasPrice);
 
       reportState({ stage: TxStage.DAIAllowanceInProgress, txId: allowanceTxId });
-      const allowancTxReceipt = await wallet.waitForTransaction(allowanceTxId);
+      await wallet.waitForTransaction(allowanceTxId);
 
       reportState({ stage: TxStage.RequestTradeSignature });
       const tradeTxId = await wallet.dexdexBuy(tradeable, gasPrice, tx);
       reportState({ stage: TxStage.TradeInProgress, txId: tradeTxId });
       const tradeTxReceipt = await wallet.waitForTransaction(tradeTxId);
+      console.log(tradeTxReceipt);
       reportState({ stage: TxStage.Completed });
     } else {
       reportState({ stage: TxStage.RequestTokenAllowanceSignature });
@@ -40,12 +40,13 @@ async function executeTransaction(
         gasPrice
       );
       reportState({ stage: TxStage.TokenAllowanceInProgress, txId: allowanceTxId });
-      const allowancTxReceipt = await wallet.waitForTransaction(allowanceTxId);
+      await wallet.waitForTransaction(allowanceTxId);
 
       reportState({ stage: TxStage.RequestTradeSignature });
       const tradeTxId = await wallet.dexdexSell(tradeable, gasPrice, tx);
       reportState({ stage: TxStage.TradeInProgress, txId: tradeTxId });
       const tradeTxReceipt = await wallet.waitForTransaction(tradeTxId);
+      console.log(tradeTxReceipt);
       reportState({ stage: TxStage.Completed });
     }
   } catch (err) {

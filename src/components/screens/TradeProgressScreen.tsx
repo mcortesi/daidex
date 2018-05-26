@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { RenderMapper } from '.';
 import { Address, Operation } from '../../model/base';
-import { networkFee, txEtherRange, txDAIVolume } from '../../model/widget-state/selectors';
-import './../Widget.css';
 import { Token } from '../../model/widget';
+import { networkFee, txDAIVolume } from '../../model/widget-state/selectors';
+import './../Widget.css';
 
 export interface TradeProgressScreen {
   operation: Operation;

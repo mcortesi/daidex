@@ -1,10 +1,9 @@
-import { combineLatest, of, never, from } from 'rxjs';
-import { distinctUntilChanged, map, switchMap, withLatestFrom, startWith } from 'rxjs/operators';
-import { WidgetEpic } from '.';
-import { setWalletDetails, setDAIVolume } from '../actions';
-import { select, promiseFactory } from '../../../utils/rx';
-import { txEtherRange } from '../selectors';
 import { BN } from 'bn.js';
+import { of } from 'rxjs';
+import { distinctUntilChanged, map, startWith, switchMap } from 'rxjs/operators';
+import { WidgetEpic } from '.';
+import { promiseFactory } from '../../../utils/rx';
+import { setDAIVolume } from '../actions';
 
 export const daiAmount: WidgetEpic = changes =>
   changes.pipe(

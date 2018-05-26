@@ -1,16 +1,16 @@
 import { BN } from 'bn.js';
 import Eth, { TransactionReceipt } from 'ethjs-query';
-import { Observable, never, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { publishReplay, refCount, switchMap } from 'rxjs/operators';
 import { Wallet } from '.';
 import { pollDifferences } from '../../utils/rx';
 import { Address, Operation } from '../base';
+import DAIMarket from '../contracts/DAIMarket';
 import DexDex from '../contracts/dexdex';
 import Erc20 from '../contracts/erc20';
-import DAIMarket from '../contracts/DAIMarket';
 import { TransactionInfo } from '../orderbook';
-import * as WalletErrors from './errors';
 import { Token } from '../widget';
+import * as WalletErrors from './errors';
 
 // This will resolve on build
 const DEXDEX_ADDRESS = process.env.DEXDEX_CONTRACT!;

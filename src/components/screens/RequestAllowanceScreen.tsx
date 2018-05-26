@@ -1,17 +1,6 @@
 import * as React from 'react';
-import { RenderMapper } from '.';
-import { Address, Operation } from '../../model/base';
-
-import {
-  networkFee,
-  txEtherRange,
-  txDAIVolume,
-  getAllowanceTxHash,
-  RequestAllowanceProps,
-} from '../../model/widget-state/selectors';
+import { RequestAllowanceProps } from '../../model/widget-state/selectors';
 import './../Widget.css';
-import { Token } from '../../model/widget';
-import { WidgetState } from '../../model/widget-state';
 
 const RequestAllowanceScreen: React.SFC<RequestAllowanceProps> = props => (
   <div className="widget-status">
