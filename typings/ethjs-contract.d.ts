@@ -10,8 +10,7 @@ declare module 'ethjs-contract' {
 
   export interface TxOptions {
     from?: Address;
-    value?: string | BN;
-    gas?: number | BN;
+    value?: BN;
     gasPrice?: BN;
   }
 

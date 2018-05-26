@@ -1,0 +1,303 @@
+[
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "traders",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "feeWallet",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "VERSION",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "name": "_traders",
+        "type": "address"
+      },
+      {
+        "name": "_feeWallet",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "fallback"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "traedeable",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "ethers",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "tradeablesSold",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "ethersObtained",
+        "type": "uint256"
+      }
+    ],
+    "name": "Sell",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "traedeable",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "ethers",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "tradeablesObtained",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "ethersSpent",
+        "type": "uint256"
+      }
+    ],
+    "name": "Buy",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "a1",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "a2",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "b1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "b2",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "b3",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "c1",
+        "type": "bool"
+      }
+    ],
+    "name": "Debug",
+    "type": "event"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_feeWallet",
+        "type": "address"
+      }
+    ],
+    "name": "changeFeeWallet",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_traders",
+        "type": "address"
+      }
+    ],
+    "name": "changeTraders",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "tradeable",
+        "type": "address"
+      },
+      {
+        "name": "amountToBuy",
+        "type": "uint256"
+      },
+      {
+        "name": "orderAddresses",
+        "type": "address[]"
+      },
+      {
+        "name": "orderUints",
+        "type": "uint256[]"
+      },
+      {
+        "name": "orderBytes",
+        "type": "bytes32[]"
+      },
+      {
+        "name": "affiliate",
+        "type": "address"
+      }
+    ],
+    "name": "buy",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "tradeable",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "name": "ethers",
+        "type": "uint256"
+      },
+      {
+        "name": "orderAddresses",
+        "type": "address[]"
+      },
+      {
+        "name": "orderUints",
+        "type": "uint256[]"
+      },
+      {
+        "name": "orderBytes",
+        "type": "bytes32[]"
+      },
+      {
+        "name": "affiliate",
+        "type": "address"
+      }
+    ],
+    "name": "sell",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

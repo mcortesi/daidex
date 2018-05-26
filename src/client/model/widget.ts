@@ -1,0 +1,61 @@
+import { toWei } from "./units";
+import { Wallet } from "./wallets";
+
+export enum GasPrice {
+  Slow = "Slow",
+  Normal = "Normal",
+  Fast = "Fast"
+}
+
+export interface GasPrices {
+  slow: number;
+  normal: number;
+  fast: number;
+}
+
+export interface Token {
+  symbol: string;
+  decimals: number;
+  address: string;
+}
+
+export interface WidgetConfig {
+  feePercentage: number;
+  ethers2usdER: number;
+  gasprices: GasPrices;
+  tokens: Token[];
+  wallets: Wallet[];
+}
+
+export enum TxStage {
+  Idle = "Idle",
+  RejectedSignature = "RejectedSignature",
+  SignatureTrade = "SignatureTrade",
+  SignatureApproval = "SignatureApproval",
+  WaitingForApproval = "WaitingForApproval",
+  WaitingForTrade = "WaitingForTrade",
+  Completed = "Completed",
+  Failed = "Failed"
+}
+export type TransactionState =
+  | { stage: TxStage.Idle }
+  | { stage: TxStage.SignatureTrade }
+  | { stage: TxStage.SignatureApproval }
+  | { stage: TxStage.WaitingForApproval; txId: string }
+  | { stage: TxStage.WaitingForTrade; txId: string }
+  | { stage: TxStage.Completed }
+  | { stage: TxStage.RejectedSignature }
+  | { stage: TxStage.Failed };
+
+export function computeGasPrice(prices: GasPrices, price: GasPrice) {
+  switch (price) {
+    case GasPrice.Slow:
+      return toWei(prices.slow, "gwei");
+    case GasPrice.Normal:
+      return toWei(prices.normal, "gwei");
+    case GasPrice.Fast:
+      return toWei(prices.fast, "gwei");
+    default:
+      throw new Error(`invalid gas price ${price}`);
+  }
+}

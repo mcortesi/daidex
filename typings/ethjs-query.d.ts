@@ -3,10 +3,7 @@ declare module 'ethjs-query' {
 
   type Address = string;
 
-  export interface TransactionReceipt {
-    contractAddress: string;
-    gasUsed: BN;
-  }
+  export interface TransactionReceipt {}
 
   class Eth {
     constructor(provider: any);
@@ -15,8 +12,6 @@ declare module 'ethjs-query' {
     getBalance(account: Address): Promise<BN>;
 
     getTransactionReceipt(txHash: string): Promise<TransactionReceipt>;
-    blockNumber(): Promise<BN>;
-    sign(account: Address, str: string): Promise<string>;
   }
 
   export default Eth;
