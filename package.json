@@ -6,7 +6,7 @@
   "scripts": {
     "localnet": "ganache-cli i--port 9545 --mnemonic \"priority pact super diesel velvet brief bid stable kangaroo surface sense tank\" ",
     "dev:server": "ts-node-dev ./src/server/index.ts",
-    "dev:client": "parcel ./src/client/index.html"
+    "dev:client": "parcel ./src/index.html"
   },
   "devDependencies": {
     "@types/bintrees": "^1.0.2",
