@@ -21,10 +21,9 @@ async function executeTransaction(
   try {
     if (operation === 'buy') {
       reportState({ stage: TxStage.RequestDAIAllowanceSignature });
-
       const daiVolume = await wallet.daiAmount('buy', tx.currentVolumeEthUpperBound);
-      // TODO ask allowance for DAI
       const allowanceTxId = await wallet.approveDAIAllowance(daiVolume, gasPrice);
+
       reportState({ stage: TxStage.DAIAllowanceInProgress, txId: allowanceTxId });
       const allowancTxReceipt = await wallet.waitForTransaction(allowanceTxId);
 
@@ -44,7 +43,7 @@ async function executeTransaction(
       const allowancTxReceipt = await wallet.waitForTransaction(allowanceTxId);
 
       reportState({ stage: TxStage.RequestTradeSignature });
-      const tradeTxId = await wallet.dexdexBuy(tradeable, gasPrice, tx);
+      const tradeTxId = await wallet.dexdexSell(tradeable, gasPrice, tx);
       reportState({ stage: TxStage.TradeInProgress, txId: tradeTxId });
       const tradeTxReceipt = await wallet.waitForTransaction(tradeTxId);
       reportState({ stage: TxStage.Completed });
