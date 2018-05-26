@@ -1,5 +1,6 @@
 import { Observable, Observer } from "rxjs";
 import { filter, withLatestFrom, share, map } from "rxjs/operators";
+import * as io from "socket.io-client";
 
 import { Address } from "./base";
 import { JsonOrder, Order, fromJsonOrder } from "./order";
@@ -52,6 +53,7 @@ export type JsonOrderBookEvent =
 export interface ServerApi {
   getWidgetConfig(widgetId: string): Promise<Exclude<WidgetConfig, "wallets">>;
   getOrderBook(tokenAddress: string): Promise<OrderBookSnapshot>;
+  orderBookWatcher(tokenAddress: string): Observable<OrderBookEvent>;
 }
 
 export type ApiOptions = {
@@ -113,9 +115,136 @@ const getOrderBook = (baseUrl: string) => async (
   }
 };
 
+const eventListener = <A>(
+  socket: SocketIOClient.Socket,
+  eventName: string
+): Observable<A> => {
+  return Observable.create((observer: Observer<A>) => {
+    const listener = (event: A) => {
+      observer.next(event);
+    };
+
+    socket.on(eventName, listener);
+
+    return () => {
+      socket.off(eventName, listener);
+    };
+  });
+};
+
+const socketEvent$ = (
+  socket: SocketIOClient.Socket,
+  eventName: string
+): Observable<any> =>
+  Observable.create((observer: Observer<any>) => {
+    const handler = (val: any) => observer.next(val);
+    socket.on(eventName, handler);
+
+    return () => {
+      socket.off(eventName, handler);
+    };
+  });
+
+const websocketApi = (socketUrl: string) => {
+  // TODO handle reconnection, disconnect, connect failure...
+  const socket = io.connect(socketUrl, { path: "/socket" });
+
+  const connects$ = socketEvent$(socket, "connect").pipe(map(() => Date.now()));
+  const disconnects$ = socketEvent$(socket, "disconnect").pipe(
+    map(() => Date.now())
+  );
+
+  const reconnect$ = connects$.pipe(
+    withLatestFrom(disconnects$),
+    map(([connected, disconnected]) => (connected - disconnected) / 1000)
+  );
+
+  reconnect$.subscribe(delay => {
+    console.log("reconnect in :", delay, "seconds");
+  });
+
+  socket.on("connect", () => console.log("connected"));
+  // socket.on('connect_timeout', () => console.log('connect timeout'));
+  // socket.on('error', (err: any) => console.log('error', err));
+  socket.on("disconnect", (err: any) => console.log("disconnect"));
+  // socket.on('reconnect_attempt', (nro: number) => console.log('reconnect_attempt', nro));
+  // socket.on('reconnect_error', (err: any) => console.log('reconnect_error', err));
+  // socket.on('reconnect_failed', () => console.log('reconnect_failed'));
+  // socket.on('ping', () => console.log('ping'));
+  // socket.on('pong', (latency: number) => console.log('pong', latency));
+
+  const updates$ = eventListener<JsonOrderBookEvent>(socket, "ob::update").pipe(
+    share()
+  );
+
+  const watchTradeable = (tokenAddress: string): Observable<OrderBookEvent> => {
+    const events = updates$.pipe(
+      filter(obe => obe.tradeableAddress === tokenAddress)
+    );
+
+    return Observable.create((observer: Observer<OrderBookEvent>) => {
+      let orderbookReady = false;
+      let savedEvents: OrderBookEvent[] = [];
+
+      const eventSubscription = events.subscribe({
+        next: orderEvent => {
+          if (orderbookReady) {
+            observer.next(fromJsonOrderbookEvent(orderEvent));
+          } else {
+            savedEvents.push(fromJsonOrderbookEvent(orderEvent));
+          }
+        },
+        error: err => {
+          console.error("ob::Event error", err);
+          socket.emit("unsubscribe", { tradeable: tokenAddress });
+          observer.error(err);
+        }
+      });
+
+      const unsubscribe = () => {
+        socket.emit("unsubscribe", { tradeable: tokenAddress });
+        eventSubscription.unsubscribe();
+      };
+
+      socket.emit(
+        "subscribe",
+        { tradeable: tokenAddress, withSnapshot: true },
+        (snapshotJson: any) => {
+          try {
+            const snapshot = fromJsonOrderbookSnapshot(snapshotJson);
+            observer.next({
+              kind: OrderEventKind.Snapshot,
+              tradeableAddress: tokenAddress,
+              snapshot
+            });
+            orderbookReady = true;
+            savedEvents.forEach(e => {
+              observer.next(e);
+            });
+            savedEvents = [];
+          } catch (err) {
+            console.error("ob::Subscribe error", err);
+            unsubscribe();
+            observer.error(err);
+          }
+        }
+      );
+
+      return unsubscribe;
+    });
+  };
+
+  return {
+    watchTradeable
+  };
+};
+
 export function createApi(opts: ApiOptions): ServerApi {
+  const wsApi = websocketApi(opts.url);
+
   return {
     getWidgetConfig: getWidgetConfig(opts.url),
-    getOrderBook: getOrderBook(opts.url)
+    getOrderBook: getOrderBook(opts.url),
+    orderBookWatcher: wsApi.watchTradeable
   };
 }

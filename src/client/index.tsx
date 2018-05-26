@@ -1,20 +1,20 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import Widget from './components/Widget';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import Widget from "./components/Widget";
 
 function readDedexConfig() {
-  const dedexScripts = document.querySelectorAll('script[data-dexdex-id]');
+  const dedexScripts = document.querySelectorAll("script[data-dexdex-id]");
   if (dedexScripts.length === 0) {
-    console.error('dexdex: missing attribute data-dexdex-id in <script/> tag');
+    console.error("dexdex: missing attribute data-dexdex-id in <script/> tag");
     return null;
   } else if (dedexScripts.length > 1) {
-    console.error('dexdex: Too many dexdex scripts. We only support one');
+    console.error("dexdex: Too many dexdex scripts. We only support one");
     return null;
   }
   const dexdexScript = dedexScripts[0];
 
-  const widgetId = dexdexScript.getAttribute('data-dexdex-id')!;
-  const customTargetId = dexdexScript.getAttribute('data-dexdex-target');
+  const widgetId = dexdexScript.getAttribute("data-dexdex-id")!;
+  const customTargetId = dexdexScript.getAttribute("data-dexdex-target");
 
   let target: HTMLElement;
   if (customTargetId) {
@@ -25,14 +25,14 @@ function readDedexConfig() {
     }
     target = customTarget;
   } else {
-    target = document.createElement('div');
+    target = document.createElement("div");
     target.id = `dexdex-${widgetId}`;
     dexdexScript.parentNode!.insertBefore(target, dexdexScript.nextSibling);
   }
 
   return {
     widgetId,
-    target,
+    target
   };
 }
 
@@ -40,7 +40,10 @@ const config = readDedexConfig();
 
 if (config) {
   ReactDOM.render(
-    <Widget opts={{ url: 'http://localhost:8000' }} widgetId={config.widgetId} />,
+    <Widget
+      opts={{ url: "http://35.227.108.151" }}
+      widgetId={config.widgetId}
+    />,
     config.target
   );
 }
