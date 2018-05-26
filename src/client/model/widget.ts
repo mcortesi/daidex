@@ -1,10 +1,10 @@
-import { toWei } from "./units";
-import { Wallet } from "./wallets";
+import { toWei } from './units';
+import { Wallet } from './wallets';
 
 export enum GasPrice {
-  Slow = "Slow",
-  Normal = "Normal",
-  Fast = "Fast"
+  Slow = 'Slow',
+  Normal = 'Normal',
+  Fast = 'Fast',
 }
 
 export interface GasPrices {
@@ -28,33 +28,44 @@ export interface WidgetConfig {
 }
 
 export enum TxStage {
-  Idle = "Idle",
-  RejectedSignature = "RejectedSignature",
-  SignatureTrade = "SignatureTrade",
-  SignatureApproval = "SignatureApproval",
-  WaitingForApproval = "WaitingForApproval",
-  WaitingForTrade = "WaitingForTrade",
-  Completed = "Completed",
-  Failed = "Failed"
+  Idle = 'Idle',
+  SignatureRejected = 'SignatureRejected',
+  RequestDAIAllowanceSignature = 'RequestDAIAllowanceSignature',
+  DAIAllowanceInProgress = 'DAIAllowanceInProgress',
+  RequestTokenAllowanceSignature = 'RequestTokenAllowanceSignature',
+  TokenAllowanceInProgress = 'TokenAllowanceInProgress',
+  RequestTradeSignature = 'RequestTradeSignature',
+  TradeInProgress = 'TradeInProgress',
+  Completed = 'Completed',
+  Failed = 'Failed',
 }
 export type TransactionState =
   | { stage: TxStage.Idle }
-  | { stage: TxStage.SignatureTrade }
-  | { stage: TxStage.SignatureApproval }
-  | { stage: TxStage.WaitingForApproval; txId: string }
-  | { stage: TxStage.WaitingForTrade; txId: string }
+  | {
+      stage:
+        | TxStage.RequestTradeSignature
+        | TxStage.RequestDAIAllowanceSignature
+        | TxStage.RequestTokenAllowanceSignature;
+    }
+  | {
+      stage:
+        | TxStage.TradeInProgress
+        | TxStage.DAIAllowanceInProgress
+        | TxStage.TokenAllowanceInProgress;
+      txId: string;
+    }
   | { stage: TxStage.Completed }
-  | { stage: TxStage.RejectedSignature }
+  | { stage: TxStage.SignatureRejected }
   | { stage: TxStage.Failed };
 
 export function computeGasPrice(prices: GasPrices, price: GasPrice) {
   switch (price) {
     case GasPrice.Slow:
-      return toWei(prices.slow, "gwei");
+      return toWei(prices.slow, 'gwei');
     case GasPrice.Normal:
-      return toWei(prices.normal, "gwei");
+      return toWei(prices.normal, 'gwei');
     case GasPrice.Fast:
-      return toWei(prices.fast, "gwei");
+      return toWei(prices.fast, 'gwei');
     default:
       throw new Error(`invalid gas price ${price}`);
   }

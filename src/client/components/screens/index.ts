@@ -23,6 +23,8 @@ const screens: Record<WidgetScreen, Screen<any>> = {
   tradeSuccess: tradeSuccess,
   waitingApproval: waitingApproval,
   signatureApproval: signatureApproval,
+  waitingDAIApproval: waitingApproval,
+  signatureDAIApproval: signatureApproval,
 };
 
 export default screens;

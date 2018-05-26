@@ -19,7 +19,9 @@ export type WidgetScreen =
   | 'tradeSuccess'
   | 'signatureTrade'
   | 'signatureApproval'
+  | 'signatureDAIApproval'
   | 'waitingApproval'
+  | 'waitingDAIApproval'
   | 'rejectedSignature'
   | 'waitingTrade';
 

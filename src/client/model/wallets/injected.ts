@@ -199,21 +199,22 @@ class InjectedWallet implements Wallet {
     return txReceipt;
   }
 
-  async commitTransaction(tx: TransactionInfo): Promise<void> {
-    // const sgn = await eth.sign(account, `0x${mtosign.toString('hex')}`);
-    // this.eth.
-    /*
-    - "instancear" el contrato de dexdex
-    - llamar a buy() o sell()
-    - buy(tradeableAddress, volume, orders.addresses, orders.uints, orders.bytes, affiliateAddress o (0x0000..))
-    - buy() mandar la # de ethers del volumeEth
+  async approveTokenAllowance(token: Token, volume: BN, gasPrice: BN): Promise<string> {
+    const account = await this.getAccount();
+    if (account == null) {
+      throw new Error('No selected account');
+    }
+    const tokenContract = Erc20(this.eth, token.address);
+    return tokenContract.approve(DEXDEX_ADDRESS, volume, { from: account, gasPrice });
+  }
 
-    - sell(tradeableAddress, volume, volumeEth, orders.addresses, orders.uints, orders.bytes, affiliateAddress o (0x0000..))
-    - before Sell need  to authorize....
-
-
-
-    */
+  async approveDAIAllowance(volume: BN, gasPrice: BN): Promise<string> {
+    const account = await this.getAccount();
+    if (account == null) {
+      throw new Error('No selected account');
+    }
+    const tokenContract = Erc20(this.eth, DAI_ADDRESS);
+    return tokenContract.approve(DEXDEX_ADDRESS, volume, { from: account, gasPrice });
   }
 }
 

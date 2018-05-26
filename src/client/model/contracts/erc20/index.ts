@@ -1,9 +1,9 @@
-import Eth from "ethjs-query";
-import EthContract, { TxOptions, TxHash } from "ethjs-contract";
-import { BN } from "bn.js";
-import { Address } from "../../base";
+import Eth from 'ethjs-query';
+import EthContract, { TxOptions, TxHash } from 'ethjs-contract';
+import { BN } from 'bn.js';
+import { Address } from '../../base';
 
-import ERC20ABI from "./erc20.abi";
+import ERC20ABI from './erc20.abi';
 
 export interface ERC20Token {
   totalSupply(): Promise<BN>;
@@ -12,7 +12,7 @@ export interface ERC20Token {
 
   allowance(owner: Address, spender: Address): Promise<BN>;
   transferFrom(from: Address, to: Address, value: BN): Promise<TxHash>;
-  approve(spender: Address, value: BN): Promise<TxHash>;
+  approve(spender: Address, value: BN, txOptions?: TxOptions): Promise<TxHash>;
 }
 
 class StdERC20Token implements ERC20Token {
@@ -30,11 +30,7 @@ class StdERC20Token implements ERC20Token {
     return (await this.contract.balanceOf(who))[0];
   }
 
-  async transfer(
-    to: Address,
-    value: BN,
-    txOptions?: TxOptions
-  ): Promise<TxHash> {
+  async transfer(to: Address, value: BN, txOptions?: TxOptions): Promise<TxHash> {
     return this.contract.transfer(to, value, txOptions);
   }
   async allowance(owner: Address, spender: Address): Promise<BN> {
@@ -48,11 +44,7 @@ class StdERC20Token implements ERC20Token {
   ): Promise<TxHash> {
     return this.contract.transferFrom(from, to, value, txOptions);
   }
-  async approve(
-    spender: Address,
-    value: BN,
-    txOptions?: TxOptions
-  ): Promise<TxHash> {
+  async approve(spender: Address, value: BN, txOptions?: TxOptions): Promise<TxHash> {
     return this.contract.approve(spender, value, txOptions);
   }
 }

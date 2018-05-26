@@ -9,13 +9,15 @@ import { Actions } from './actions';
 
 const TxStageScreenMap: Record<TxStage, WidgetScreen> = {
   [TxStage.Idle]: 'form',
-  [TxStage.WaitingForApproval]: 'waitingApproval',
-  [TxStage.WaitingForTrade]: 'waitingTrade',
-  [TxStage.SignatureApproval]: 'signatureApproval',
-  [TxStage.SignatureTrade]: 'signatureTrade',
+  [TxStage.TokenAllowanceInProgress]: 'waitingApproval',
+  [TxStage.DAIAllowanceInProgress]: 'waitingDAIApproval',
+  [TxStage.TradeInProgress]: 'waitingTrade',
+  [TxStage.RequestTokenAllowanceSignature]: 'signatureApproval',
+  [TxStage.RequestDAIAllowanceSignature]: 'signatureDAIApproval',
+  [TxStage.RequestTradeSignature]: 'signatureTrade',
   [TxStage.Completed]: 'tradeSuccess',
   [TxStage.Failed]: 'error',
-  [TxStage.RejectedSignature]: 'rejectedSignature',
+  [TxStage.SignatureRejected]: 'rejectedSignature',
 };
 
 function txEventToScreen(txEvent: TransactionState): WidgetScreen {
@@ -71,11 +73,11 @@ function applySetters(state: WidgetState, action: Actions): WidgetState {
       return {
         ...state,
         tradeTxHash:
-          action.payload.stage === TxStage.WaitingForTrade
+          action.payload.stage === TxStage.TradeInProgress
             ? action.payload.txId
             : state.tradeTxHash,
         approvalTxHash:
-          action.payload.stage === TxStage.WaitingForApproval
+          action.payload.stage === TxStage.TokenAllowanceInProgress
             ? action.payload.txId
             : state.approvalTxHash,
         screen: txEventToScreen(action.payload),
