@@ -18,23 +18,14 @@ export const daiAmount: WidgetEpic = changes =>
       };
     }),
     distinctUntilChanged((before, current) => {
-      if (
-        before.volumeEth === current.volumeEth ||
+      const isSameVolume =
+        before.volumeEth == current.volumeEth ||
         (before.volumeEth !== null &&
           current.volumeEth !== null &&
-          before.volumeEth.eq(current.volumeEth))
-      ) {
-        return true;
-      }
-
-      if (before.wallet === current.wallet) {
-        return true;
-      }
-
-      if (before.operation === current.operation) {
-        return true;
-      }
-      return false;
+          before.volumeEth.eq(current.volumeEth));
+      const isSameWallet = before.wallet === current.wallet;
+      const isSameOp = before.operation === current.operation;
+      return isSameVolume && isSameWallet && isSameOp;
     }),
     switchMap(({ volumeEth, wallet, operation }) => {
       if (wallet && volumeEth) {
