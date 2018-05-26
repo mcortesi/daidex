@@ -99,7 +99,7 @@ class InjectedWallet implements Wallet {
   }
 
   daiBalance(): Observable<BN> {
-    const tokenContract = Erc20(this.eth, '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359');
+    const tokenContract = Erc20(this.eth, DAI_ADDRESS);
 
     return this.account.pipe(
       switchMap(account =>
