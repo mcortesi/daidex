@@ -8581,7 +8581,7 @@ truffle-workflow-compile@^1.0.3, truffle-workflow-compile@^1.0.4:
     truffle-expect "^0.0.3"
     truffle-resolver "^4.0.3"
 
-truffle@^4.1.6:
+truffle@^4.1.11, truffle@^4.1.6:
   version "4.1.11"
   resolved "https://registry.yarnpkg.com/truffle/-/truffle-4.1.11.tgz#a4df812ebf4a564892900c4a1dac1131104a0799"
   dependencies:

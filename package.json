@@ -24,6 +24,7 @@
     "ganache-cli": "^6.1.0",
     "jest": "^23.0.0",
     "parcel-bundler": "^1.8.1",
+    "truffle": "^4.1.11",
     "ts-node-dev": "^1.0.0-pre.23",
     "typescript": "^2.8.3",
     "zos": "^1.0.0"
