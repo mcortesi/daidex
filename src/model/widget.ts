@@ -1,5 +1,6 @@
 import { toWei } from './units';
 import { Wallet } from './wallets';
+import { BN } from 'bn.js';
 
 export enum GasPrice {
   Slow = 'Slow',
@@ -58,7 +59,7 @@ export type TransactionState =
   | { stage: TxStage.SignatureRejected }
   | { stage: TxStage.Failed };
 
-export function computeGasPrice(prices: GasPrices, price: GasPrice) {
+export function computeGasPrice(prices: GasPrices, price: GasPrice): BN {
   switch (price) {
     case GasPrice.Slow:
       return toWei(prices.slow, 'gwei');

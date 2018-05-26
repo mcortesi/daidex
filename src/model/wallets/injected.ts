@@ -16,8 +16,8 @@ import * as WalletErrors from './errors';
 const DEXDEX_ADDRESS = process.env.DEXDEX_CONTRACT!;
 const NOAFFILIATE = '0x0000000000000000000000000000000000000000';
 
-const WETH_ADDRESS = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
-const DAI_ADDRESS = '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359';
+const WETH_ADDRESS: string = process.env.WETH_ADDRESS!;
+const DAI_ADDRESS: string = process.env.DAI_ADDRESS!;
 
 const KnowWallets = [
   {
@@ -218,7 +218,7 @@ class InjectedWallet implements Wallet {
   }
 }
 
-export async function tryGet(): Promise<InjectedWallet | null> {
+export async function tryGet(): Promise<Wallet | null> {
   const mEth = await getOnLoad(getWeb3);
   if (mEth) {
     return new InjectedWallet(mEth.eth, mEth.name, mEth.icon);

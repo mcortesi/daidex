@@ -4,9 +4,9 @@ import Eth from 'ethjs-query';
 import { Address } from '../../base';
 import ABI from './MatchingMarket.abi';
 
-const MatchingMarketAddress = '0x14FBCA95be7e99C15Cc2996c6C9d841e54B79425';
+const MatchingMarketAddress = process.env.MATCHINGMARKET_ADDRESS!;
 
-class MatchingMarket {
+export class MatchingMarket {
   contract: any;
 
   constructor(eth: Eth, contractAddress: Address) {
