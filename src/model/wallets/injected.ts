@@ -6,7 +6,7 @@ import { Wallet } from '.';
 import { pollDifferences } from '../../utils/rx';
 import { Address, Operation } from '../base';
 import DAIMarket from '../contracts/DAIMarket';
-import DexDex from '../contracts/dexdex';
+import DaiDex from '../contracts/daidex';
 import Erc20 from '../contracts/erc20';
 import { TransactionInfo } from '../orderbook';
 import { Token } from '../widget';
@@ -147,38 +147,49 @@ class InjectedWallet implements Wallet {
     }
   }
 
-  async dexdexBuy(token: Token, gasPrice: BN, tx: TransactionInfo) {
+  async dexdexBuy(token: Token, gasPrice: BN, tx: TransactionInfo, daiVolume: BN) {
     try {
       const account = await this.getAccount();
       if (account == null) {
-        throw new Error('No selecte account');
+        throw new Error('No selected account');
       }
-      const dexdex = DexDex(this.eth, DEXDEX_ADDRESS);
+      const dexdex = DaiDex(this.eth);
       const ordersData = tx.getOrderParameters();
-      return await dexdex.buy(token.address, tx.currentVolume, ordersData, NOAFFILIATE, {
-        from: account,
-        value: tx.currentVolumeEthUpperBound,
-        gasPrice,
-      });
+      return await dexdex.buy(
+        token.address,
+        tx.currentVolume,
+        daiVolume,
+        tx.currentVolumeEthUpperBound,
+        ordersData,
+        {
+          from: account,
+          gasPrice,
+        }
+      );
     } catch (err) {
       throw toWalletError(err);
     }
   }
 
-  async dexdexSell(token: Token, gasPrice: BN, tx: TransactionInfo): Promise<string> {
+  async dexdexSell(
+    token: Token,
+    gasPrice: BN,
+    tx: TransactionInfo,
+    daiVolume: BN
+  ): Promise<string> {
     try {
       const account = await this.getAccount();
       if (account == null) {
-        throw new Error('No selecte account');
+        throw new Error('No selected account');
       }
-      const dexdex = DexDex(this.eth, DEXDEX_ADDRESS);
+      const dexdex = DaiDex(this.eth);
       const ordersData = tx.getOrderParameters();
       return await dexdex.sell(
         token.address,
         tx.currentVolume,
-        tx.currentVolumeEth,
+        daiVolume,
+        tx.currentVolumeEthUpperBound,
         ordersData,
-        NOAFFILIATE,
         { from: account, gasPrice }
       );
     } catch (err) {

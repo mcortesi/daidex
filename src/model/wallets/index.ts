@@ -19,8 +19,8 @@ export interface Wallet {
   approveTokenAllowance(token: Token, volume: BN, gasPrice: BN): Promise<string>;
   approveDAIAllowance(volume: BN, gasPrice: BN): Promise<string>;
 
-  dexdexBuy(token: Token, gasPrice: BN, tx: TransactionInfo): Promise<string>;
-  dexdexSell(token: Token, gasPrice: BN, tx: TransactionInfo): Promise<string>;
+  dexdexBuy(token: Token, gasPrice: BN, tx: TransactionInfo, daiVolume: BN): Promise<string>;
+  dexdexSell(token: Token, gasPrice: BN, tx: TransactionInfo, daiVolume: BN): Promise<string>;
   waitForTransaction(txId: string): Promise<any>;
 }
 

@@ -15,19 +15,19 @@ async function executeTransaction(
   tradeable: Token,
   operation: Operation,
   tx: TransactionInfo,
+  daiVolume: BN,
   reportState: (newState: TransactionState) => void
 ) {
   try {
     if (operation === 'buy') {
       reportState({ stage: TxStage.RequestDAIAllowanceSignature });
-      const daiVolume = await wallet.daiAmount('buy', tx.currentVolumeEthUpperBound);
       const allowanceTxId = await wallet.approveDAIAllowance(daiVolume, gasPrice);
 
       reportState({ stage: TxStage.DAIAllowanceInProgress, txId: allowanceTxId });
       await wallet.waitForTransaction(allowanceTxId);
 
       reportState({ stage: TxStage.RequestTradeSignature });
-      const tradeTxId = await wallet.dexdexBuy(tradeable, gasPrice, tx);
+      const tradeTxId = await wallet.dexdexBuy(tradeable, gasPrice, tx, daiVolume);
       reportState({ stage: TxStage.TradeInProgress, txId: tradeTxId });
       const tradeTxReceipt = await wallet.waitForTransaction(tradeTxId);
       console.log(tradeTxReceipt);
@@ -43,7 +43,7 @@ async function executeTransaction(
       await wallet.waitForTransaction(allowanceTxId);
 
       reportState({ stage: TxStage.RequestTradeSignature });
-      const tradeTxId = await wallet.dexdexSell(tradeable, gasPrice, tx);
+      const tradeTxId = await wallet.dexdexSell(tradeable, gasPrice, tx, daiVolume);
       reportState({ stage: TxStage.TradeInProgress, txId: tradeTxId });
       const tradeTxReceipt = await wallet.waitForTransaction(tradeTxId);
       console.log(tradeTxReceipt);
@@ -63,10 +63,13 @@ function executeTransactionObs(
   gasPrice: BN,
   tradeable: Token,
   operation: Operation,
-  tx: TransactionInfo
+  tx: TransactionInfo,
+  daiVolume: BN
 ): Observable<TransactionState> {
   return Observable.create(async (observer: Observer<TransactionState>) => {
-    executeTransaction(wallet, gasPrice, tradeable, operation, tx, state => observer.next(state))
+    executeTransaction(wallet, gasPrice, tradeable, operation, tx, daiVolume, state =>
+      observer.next(state)
+    )
       .catch(err => observer.error(err))
       .then(() => observer.complete());
 
@@ -80,7 +83,7 @@ export const runTransaction: WidgetEpic = changes =>
   changes.pipe(
     filterAction('startTransaction'),
     switchMap(({ state }) => {
-      if (state.wallet && state.currentTransaction) {
+      if (state.wallet && state.currentTransaction && state.currentTransactionDai) {
         const gasPriceBN = computeGasPrice(state.config.gasprices, state.gasPrice);
         const tx = state.currentTransaction;
         return executeTransactionObs(
@@ -88,7 +91,8 @@ export const runTransaction: WidgetEpic = changes =>
           gasPriceBN,
           state.tradeable,
           state.operation,
-          tx
+          tx,
+          state.currentTransactionDai
         );
       } else {
         return empty();
