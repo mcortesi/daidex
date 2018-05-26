@@ -5,7 +5,7 @@ import { Wallet } from '../../model/wallets';
 import { GasPrice, Token } from '../../model/widget';
 import { Operations, WalletDetails, WidgetState } from '../../model/widget-state';
 import * as actions from '../../model/widget-state/actions';
-import { networkFee, txEtherRange } from '../../model/widget-state/selectors';
+import { networkFee, txEtherRange, txDAIVolume } from '../../model/widget-state/selectors';
 import { fixDecimals } from '../../utils/format';
 import AmountField from '../AmountField';
 import GasPriceSelector from '../GasPriceSelector';
@@ -27,6 +27,7 @@ export interface WidgetFormProps {
   gasPrice: GasPrice;
   operation: Operation;
   txEtherRange: { min: string; max: string };
+  txDAI: string;
   networkFee: { ether: string; usd: string };
 }
 
@@ -56,6 +57,7 @@ export const mapper: RenderMapper<WidgetFormProps> = store => {
     gasPrice: ws.gasPrice,
     operation: ws.operation,
     txEtherRange: txEtherRange(ws),
+    txDAI: txDAIVolume(ws),
     networkFee: networkFee(ws),
     actions: {
       setAmount: setAmount(ws),
@@ -91,8 +93,8 @@ const WidgetForm: React.SFC<WidgetFormProps> = props => (
     <div className="summary">
       <div className="summary-token margin-bottom">
         <div className="summary-token-price flex-grid">
-          <label className="col">DAI Price</label>
-          <div className="summary-token-price-value value col">0.02332 ETH</div>
+          <label className="col">{props.tradeable.symbol} Price</label>
+          <div className="summary-token-price-value value col">{props.txDAI} DAI</div>
         </div>
       </div>
 
@@ -120,11 +122,6 @@ const WidgetForm: React.SFC<WidgetFormProps> = props => (
     <div className="footer flex-grid-responsive">
       <div className="col-1">
         <img src={logoSvg} alt="Powered by DEXDEX" />
-      </div>
-      <div className="col-2">
-        <p>
-          By clicking confirm, you agree to our <a href="#">terms & services</a>
-        </p>
       </div>
     </div>
   </div>

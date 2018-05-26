@@ -16,6 +16,13 @@ export const txEtherRange = (ws: WidgetState) => {
   };
 };
 
+export const txDAIVolume = (ws: WidgetState) => {
+  const dai = ws.currentTransactionDai;
+  return dai
+    ? Number(fromWei(percentage(1 + ws.config.feePercentage, dai), 'ether')).toFixed(4)
+    : '--';
+};
+
 export const networkFee = (ws: WidgetState) => {
   const transactionInfo = ws.currentTransaction;
   const gasPrice = computeGasPrice(ws.config.gasprices, ws.gasPrice);

@@ -55,8 +55,8 @@ export class StdTransactionInfo implements TransactionInfo {
   }
 
   get currentVolumeEthUpperBound() {
-    // Current threshold is 30% extra
-    return this.currentVolumeEth.muln(130).divn(100);
+    // Current threshold is 5% extra
+    return this.currentVolumeEth.muln(105).divn(100);
   }
 
   get maxAvailableVolume() {

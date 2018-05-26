@@ -1,8 +1,8 @@
-import * as React from "react";
-import Select, { Option } from "react-select";
-import "react-select/dist/react-select.css";
-import { Operation } from "../model/base";
-import { Token } from "../model/widget";
+import * as React from 'react';
+import Select, { Option } from 'react-select';
+import 'react-select/dist/react-select.css';
+import { Operation } from '../model/base';
+import { Token } from '../model/widget';
 
 export interface TokenSelectorProps {
   operation: Operation;
@@ -18,8 +18,8 @@ class TokenSelector extends React.PureComponent<TokenSelectorProps> {
       <div className="select-symbol-name">
         <img
           className="token-symbol"
-          src="https://easytrade.io/assets/tokens/dai.png"
-          alt="dai"
+          src={`https://easytrade.io/assets/tokens/${token.symbol.toLowerCase()}.png`}
+          alt={token.symbol}
         />
         <span className="token-name"> {token.symbol}</span>
       </div>
@@ -32,8 +32,8 @@ class TokenSelector extends React.PureComponent<TokenSelectorProps> {
       <div className="select-icon-name">
         <img
           className="token-symbol"
-          src="https://easytrade.io/assets/tokens/dai.png"
-          alt="dai"
+          src={`https://easytrade.io/assets/tokens/${token.symbol.toLowerCase()}.png`}
+          alt={token.symbol}
         />
         <span className="token-name"> {token.symbol}</span>
       </div>
@@ -60,7 +60,7 @@ class TokenSelector extends React.PureComponent<TokenSelectorProps> {
         }}
         options={tokens.map((token, idx) => ({
           value: idx,
-          label: `{token.symbol} - {token.symbol}`
+          label: `{token.symbol} - {token.symbol}`,
         }))}
       />
     );

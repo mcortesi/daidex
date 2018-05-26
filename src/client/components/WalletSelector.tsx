@@ -33,7 +33,7 @@ class WalletSelector extends React.Component<WalletSelectorProps> {
                 <p className="wallet-amount">
                   You have{' '}
                   <span className="wallet-amount-value">
-                    {toEther(walletDetails.etherBalance)} ethers
+                    {toEther(walletDetails.daiBalance)} DAI
                   </span>
                 </p>
                 <p className="wallet-id">{walletDetails.address}</p>

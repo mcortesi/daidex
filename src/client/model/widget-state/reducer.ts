@@ -1,27 +1,21 @@
-import { WidgetScreen, WidgetState } from ".";
-import { fixDecimals, removeExtraZeros } from "../../utils/format";
-import { Operation } from "../base";
-import {
-  OrderBook,
-  OrderBookSide,
-  getSide,
-  updateSide,
-  orderBookActions
-} from "../orderbook";
-import { OrderBookEvent, OrderEventKind } from "../server-api";
-import { fromTokenDecimals, toTokenDecimals } from "../units";
-import { TransactionState, TxStage } from "../widget";
-import { Actions } from "./actions";
+import { WidgetScreen, WidgetState } from '.';
+import { fixDecimals, removeExtraZeros } from '../../utils/format';
+import { Operation } from '../base';
+import { OrderBook, OrderBookSide, getSide, updateSide, orderBookActions } from '../orderbook';
+import { OrderBookEvent, OrderEventKind } from '../server-api';
+import { fromTokenDecimals, toTokenDecimals } from '../units';
+import { TransactionState, TxStage } from '../widget';
+import { Actions } from './actions';
 
 const TxStageScreenMap: Record<TxStage, WidgetScreen> = {
-  [TxStage.Idle]: "form",
-  [TxStage.WaitingForApproval]: "waitingApproval",
-  [TxStage.WaitingForTrade]: "waitingTrade",
-  [TxStage.SignatureApproval]: "signatureApproval",
-  [TxStage.SignatureTrade]: "signatureTrade",
-  [TxStage.Completed]: "tradeSuccess",
-  [TxStage.Failed]: "error",
-  [TxStage.RejectedSignature]: "rejectedSignature"
+  [TxStage.Idle]: 'form',
+  [TxStage.WaitingForApproval]: 'waitingApproval',
+  [TxStage.WaitingForTrade]: 'waitingTrade',
+  [TxStage.SignatureApproval]: 'signatureApproval',
+  [TxStage.SignatureTrade]: 'signatureTrade',
+  [TxStage.Completed]: 'tradeSuccess',
+  [TxStage.Failed]: 'error',
+  [TxStage.RejectedSignature]: 'rejectedSignature',
 };
 
 function txEventToScreen(txEvent: TransactionState): WidgetScreen {
@@ -50,31 +44,30 @@ function applyEvent(ob: OrderBook, event: OrderBookEvent): OrderBook {
 
 function applySetters(state: WidgetState, action: Actions): WidgetState {
   switch (action.type) {
-    case "setAmount":
+    case 'setAmount':
       return { ...state, amount: action.payload, amountPristine: false };
-    case "setGasPrice":
+    case 'setGasPrice':
       return { ...state, gasPrice: action.payload };
-    case "setOperation":
+    case 'setOperation':
       return { ...state, operation: action.payload };
-    case "setWallet":
+    case 'setWallet':
       return { ...state, wallet: action.payload };
-    case "setWalletDetails":
+    case 'setWalletDetails':
       return { ...state, walletDetails: action.payload };
-    case "setToken":
+    case 'setDAIVolume':
+      return { ...state, currentTransactionDai: action.payload };
+    case 'setToken':
       return {
         ...state,
-        tradeable: action.payload
+        tradeable: action.payload,
       };
-    case "orderbookEvent":
+    case 'orderbookEvent':
       return {
         ...state,
-        orderbook: applyEvent(
-          state.orderbook || OB.newOrderBook(),
-          action.payload
-        )
+        orderbook: applyEvent(state.orderbook || OB.newOrderBook(), action.payload),
       };
 
-    case "setTransactionState":
+    case 'setTransactionState':
       return {
         ...state,
         tradeTxHash:
@@ -85,18 +78,14 @@ function applySetters(state: WidgetState, action: Actions): WidgetState {
           action.payload.stage === TxStage.WaitingForApproval
             ? action.payload.txId
             : state.approvalTxHash,
-        screen: txEventToScreen(action.payload)
+        screen: txEventToScreen(action.payload),
       };
     default:
       return { ...state };
   }
 }
 
-const computeIsValidAmount = (
-  amount: string,
-  decimals: number,
-  obside: OrderBookSide | null
-) => {
+const computeIsValidAmount = (amount: string, decimals: number, obside: OrderBookSide | null) => {
   if (amount.length === 0) {
     return false;
   }
@@ -110,9 +99,8 @@ const computeIsValidAmount = (
 const getCurrentSide = (orderbook: OrderBook | null, op: Operation) =>
   orderbook == null ? null : getSide(orderbook, op);
 
-const changeChecker = <A>(oldVal: A, newVal: A) => (
-  ...keys: (keyof A)[]
-): boolean => keys.some(key => oldVal[key] !== newVal[key]);
+const changeChecker = <A>(oldVal: A, newVal: A) => (...keys: (keyof A)[]): boolean =>
+  keys.some(key => oldVal[key] !== newVal[key]);
 
 function reducer(oldState: WidgetState, action: Actions) {
   // apply changes to direct fields in the state
@@ -120,26 +108,19 @@ function reducer(oldState: WidgetState, action: Actions) {
   const anyChanged = changeChecker(oldState, st);
 
   // reset orderbook when tradeable changes
-  if (anyChanged("tradeable")) {
+  if (anyChanged('tradeable')) {
     st.orderbook = null;
   }
 
   // If amount is Pristine, we automatically set the amount to the minimun Buy/Sell amount
-  if (
-    st.amountPristine &&
-    st.orderbook &&
-    anyChanged("operation", "orderbook")
-  ) {
+  if (st.amountPristine && st.orderbook && anyChanged('operation', 'orderbook')) {
     st.amount = removeExtraZeros(
-      fromTokenDecimals(
-        getSide(st.orderbook, st.operation).minVolume,
-        st.tradeable.decimals
-      )
+      fromTokenDecimals(getSide(st.orderbook, st.operation).minVolume, st.tradeable.decimals)
     );
   }
 
   // If tradeable changed, we adjust the amount to the number of decimals of it
-  if (anyChanged("tradeable")) {
+  if (anyChanged('tradeable')) {
     st.amount = fixDecimals(st.amount, st.tradeable.decimals);
   }
 
@@ -147,12 +128,8 @@ function reducer(oldState: WidgetState, action: Actions) {
   const currentSide = getCurrentSide(st.orderbook, st.operation);
 
   // Recompute isValidAmount if (side,amount or tradeable) changed
-  if (oldSide !== currentSide || anyChanged("amount", "tradeable")) {
-    st.isValidAmount = computeIsValidAmount(
-      st.amount,
-      st.tradeable.decimals,
-      currentSide
-    );
+  if (oldSide !== currentSide || anyChanged('amount', 'tradeable')) {
+    st.isValidAmount = computeIsValidAmount(st.amount, st.tradeable.decimals, currentSide);
   }
 
   // Recompute currentTransaction when necessary
@@ -165,7 +142,7 @@ function reducer(oldState: WidgetState, action: Actions) {
       currentSide,
       toTokenDecimals(st.amount, st.tradeable.decimals)
     );
-  } else if (anyChanged("amount")) {
+  } else if (anyChanged('amount')) {
     // only the amount changed. Maybe the current computed transaction is still valid
     const volumeTD = toTokenDecimals(st.amount, st.tradeable.decimals);
     if (st.currentTransaction!.canHandle(volumeTD)) {
@@ -185,5 +162,4 @@ function reducer(oldState: WidgetState, action: Actions) {
 export const reducerWithDefaults = (initialState: WidgetState) => (
   state: WidgetState | undefined,
   action: Actions
-) =>
-  state === undefined ? reducer(initialState, action) : reducer(state, action);
+) => (state === undefined ? reducer(initialState, action) : reducer(state, action));

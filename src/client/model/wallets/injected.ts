@@ -4,9 +4,10 @@ import { Observable } from 'rxjs';
 import { publishReplay, refCount, switchMap } from 'rxjs/operators';
 import { Wallet } from '.';
 import { pollDifferences } from '../../utils/rx';
-import { Address } from '../base';
+import { Address, Operation } from '../base';
 import DexDex from '../contracts/dexdex';
 import Erc20 from '../contracts/erc20';
+import DAIMarket from '../contracts/DAIMarket';
 import { TransactionInfo } from '../orderbook';
 import * as WalletErrors from './errors';
 import { Token } from '../widget';
@@ -14,6 +15,9 @@ import { Token } from '../widget';
 // This will resolve on build
 const DEXDEX_ADDRESS = process.env.DEXDEX_CONTRACT!;
 const NOAFFILIATE = '0x0000000000000000000000000000000000000000';
+
+const WETH_ADDRESS = '0x0000000000000000000000000000000000000000';
+const DAI_ADDRESS = '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359';
 
 const KnowWallets = [
   {
@@ -80,7 +84,7 @@ class InjectedWallet implements Wallet {
   etherBalance = this.account.pipe(
     switchMap(account =>
       pollDifferences({
-        period: 100,
+        period: 60 * 1000,
         poller: () => this.eth.getBalance(account),
         compareFn: (a: BN, b: BN) => a.eq(b),
       })
@@ -94,18 +98,41 @@ class InjectedWallet implements Wallet {
     return accounts[0];
   }
 
+  daiBalance(): Observable<BN> {
+    const tokenContract = Erc20(this.eth, '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359');
+
+    return this.account.pipe(
+      switchMap(account =>
+        pollDifferences({
+          period: 60 * 1000,
+          poller: () => tokenContract.balanceOf(account),
+          compareFn: (a: BN, b: BN) => a.eq(b),
+        })
+      )
+    );
+  }
   tradeableBalance(token: Token): Observable<BN> {
     const tokenContract = Erc20(this.eth, token.address);
 
     return this.account.pipe(
       switchMap(account =>
         pollDifferences({
-          period: 100,
+          period: 60 * 1000,
           poller: () => tokenContract.balanceOf(account),
           compareFn: (a: BN, b: BN) => a.eq(b),
         })
       )
     );
+  }
+
+  async daiAmount(operation: Operation, volumeEth: BN) {
+    const daiMarket = DAIMarket(this.eth);
+
+    if (operation === 'buy') {
+      return await daiMarket.getPayAmount(DAI_ADDRESS, WETH_ADDRESS, volumeEth);
+    } else {
+      return await daiMarket.getBuyAmount(DAI_ADDRESS, WETH_ADDRESS, volumeEth);
+    }
   }
 
   async dexdexBuy(token: Token, gasPrice: BN, tx: TransactionInfo) {

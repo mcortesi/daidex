@@ -1,5 +1,5 @@
 import { BN } from 'bn.js';
-import { Address } from '../base';
+import { Address, Operation } from '../base';
 import * as injected from './injected';
 import { Observable } from 'rxjs';
 import { TransactionInfo } from '../orderbook';
@@ -11,6 +11,8 @@ export interface Wallet {
   account: Observable<Address>;
   etherBalance: Observable<BN>;
   tradeableBalance: (token: Token) => Observable<BN>;
+  daiBalance: () => Observable<BN>;
+  daiAmount: (op: Operation, amount: BN) => Promise<BN>;
 
   getAccount(): Promise<Address>;
 
