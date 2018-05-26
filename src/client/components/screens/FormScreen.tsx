@@ -1,22 +1,18 @@
-import * as React from "react";
-import { RenderMapper } from ".";
-import { Operation } from "../../model/base";
-import { Wallet } from "../../model/wallets";
-import { GasPrice, Token } from "../../model/widget";
-import {
-  Operations,
-  WalletDetails,
-  WidgetState
-} from "../../model/widget-state";
-import * as actions from "../../model/widget-state/actions";
-import { networkFee, txEtherRange } from "../../model/widget-state/selectors";
-import { fixDecimals } from "../../utils/format";
-import AmountField from "../AmountField";
-import GasPriceSelector from "../GasPriceSelector";
-import OperationSelector from "../OperationSelector";
-import TokenSelector from "../TokenSelector";
-import WalletSelector from "../WalletSelector";
-import logoSvg from "./dexdex.svg";
+import * as React from 'react';
+import { RenderMapper } from '.';
+import { Operation } from '../../model/base';
+import { Wallet } from '../../model/wallets';
+import { GasPrice, Token } from '../../model/widget';
+import { Operations, WalletDetails, WidgetState } from '../../model/widget-state';
+import * as actions from '../../model/widget-state/actions';
+import { networkFee, txEtherRange } from '../../model/widget-state/selectors';
+import { fixDecimals } from '../../utils/format';
+import AmountField from '../AmountField';
+import GasPriceSelector from '../GasPriceSelector';
+import OperationSelector from '../OperationSelector';
+import TokenSelector from '../TokenSelector';
+import WalletSelector from '../WalletSelector';
+import logoSvg from './dexdex.svg';
 
 export interface WidgetFormProps {
   actions: Operations;
@@ -36,8 +32,7 @@ export interface WidgetFormProps {
 
 export const mapper: RenderMapper<WidgetFormProps> = store => {
   const setToken = (x: Token) => store.dispatch(actions.setToken(x));
-  const setOperation = (x: Operation) =>
-    store.dispatch(actions.setOperation(x));
+  const setOperation = (x: Operation) => store.dispatch(actions.setOperation(x));
   const setWallet = (x: Wallet | null) => store.dispatch(actions.setWallet(x));
   const setGasPrice = (x: GasPrice) => store.dispatch(actions.setGasPrice(x));
   const startTransaction = () => store.dispatch(actions.startTransaction());
@@ -68,17 +63,14 @@ export const mapper: RenderMapper<WidgetFormProps> = store => {
       setOperation,
       setWallet,
       setGasPrice,
-      startTransaction
-    }
+      startTransaction,
+    },
   });
 };
 
 const WidgetForm: React.SFC<WidgetFormProps> = props => (
   <div className="widget">
-    <OperationSelector
-      value={props.operation}
-      onChange={props.actions.setOperation}
-    />
+    <OperationSelector value={props.operation} onChange={props.actions.setOperation} />
     <label className="flex-grid" htmlFor="token">
       Buy Amount
     </label>
@@ -95,12 +87,7 @@ const WidgetForm: React.SFC<WidgetFormProps> = props => (
         onChange={props.actions.setToken}
       />
     </div>
-    <WalletSelector
-      selectedWallet={props.wallet}
-      walletDetails={props.walletDetails}
-      wallets={props.walletList}
-      onChange={props.actions.setWallet}
-    />
+    <WalletSelector selectedWallet={props.wallet} walletDetails={props.walletDetails} />
     <div className="summary">
       <div className="summary-token margin-bottom">
         <div className="summary-token-price flex-grid">
@@ -118,9 +105,7 @@ const WidgetForm: React.SFC<WidgetFormProps> = props => (
 
       <div className="summary-total flex-grid">
         <label className="col">Total</label>
-        <div className="summary-total-value value col">
-          {props.txEtherRange.max}
-        </div>
+        <div className="summary-total-value value col">{props.txEtherRange.max}</div>
       </div>
     </div>
     <div className="flex-grid">

@@ -1,24 +1,46 @@
-import { BN } from "bn.js";
-import Eth, { TransactionReceipt } from "ethjs-query";
-import { Observable } from "rxjs";
-import { publishReplay, refCount, switchMap } from "rxjs/operators";
-import { Wallet } from ".";
-import { pollDifferences } from "../../utils/rx";
-import { Address } from "../base";
-import DexDex from "../contracts/dexdex";
-import Erc20 from "../contracts/erc20";
-import { TransactionInfo } from "../orderbook";
-import * as WalletErrors from "./errors";
-import { Token } from "../widget";
+import { BN } from 'bn.js';
+import Eth, { TransactionReceipt } from 'ethjs-query';
+import { Observable } from 'rxjs';
+import { publishReplay, refCount, switchMap } from 'rxjs/operators';
+import { Wallet } from '.';
+import { pollDifferences } from '../../utils/rx';
+import { Address } from '../base';
+import DexDex from '../contracts/dexdex';
+import Erc20 from '../contracts/erc20';
+import { TransactionInfo } from '../orderbook';
+import * as WalletErrors from './errors';
+import { Token } from '../widget';
 
 // This will resolve on build
 const DEXDEX_ADDRESS = process.env.DEXDEX_CONTRACT!;
-const NOAFFILIATE = "0x0000000000000000000000000000000000000000";
+const NOAFFILIATE = '0x0000000000000000000000000000000000000000';
 
-function getWeb3(): Eth | null {
+const KnowWallets = [
+  {
+    name: 'Metamask',
+    icon: 'https://metamask.io/img/metamask.png',
+    condition: (web3: any) => web3.currentProvider.isMetaMask,
+  },
+  {
+    name: 'Toshi',
+    icon:
+      'https://lh3.googleusercontent.com/NJxIx1gBbOtXNC5z0f-80q3N3IJRnYXPDKUueYQT53wpRZtXA-mi3rw2SEba-wCQobS3=s360-rw',
+    condition: (web3: any) => web3.currentProvider.isToshi,
+  },
+];
+
+function getWeb3(): { eth: Eth; name: string; icon: string } | null {
   const web3 = (window as any).web3;
-  if (typeof web3 !== "undefined" && web3.currentProvider.isMetaMask) {
-    return new Eth(web3.currentProvider);
+  if (typeof web3 !== 'undefined') {
+    for (const kw of KnowWallets) {
+      if (kw.condition(web3)) {
+        return {
+          eth: new Eth(web3.currentProvider),
+          name: kw.name,
+          icon: kw.icon,
+        };
+      }
+    }
   }
   return null;
 }
@@ -26,8 +48,8 @@ function getWeb3(): Eth | null {
 export function getOnLoad<A>(onLoadGetter: () => A): Promise<A> {
   return new Promise(resolve => {
     switch (document.readyState) {
-      case "loading":
-        window.addEventListener("load", () => resolve(onLoadGetter()));
+      case 'loading':
+        window.addEventListener('load', () => resolve(onLoadGetter()));
         return;
       default:
         resolve(onLoadGetter());
@@ -39,7 +61,7 @@ function toWalletError(err: any) {
   if (err.value && err.value.message) {
     if (
       err.value.message.indexOf(
-        "Error: MetaMask Tx Signature: User denied transaction signature"
+        'Error: MetaMask Tx Signature: User denied transaction signature'
       ) >= 0
     ) {
       return WalletErrors.signatureRejected();
@@ -49,12 +71,10 @@ function toWalletError(err: any) {
   return err;
 }
 
-class MetaMaskWallet implements Wallet {
-  public readonly name = "MetaMask";
-
+class InjectedWallet implements Wallet {
   account = pollDifferences({
     period: 100,
-    poller: () => this.getAccount()
+    poller: () => this.getAccount(),
   }).pipe(publishReplay(1), refCount());
 
   etherBalance = this.account.pipe(
@@ -62,12 +82,12 @@ class MetaMaskWallet implements Wallet {
       pollDifferences({
         period: 100,
         poller: () => this.eth.getBalance(account),
-        compareFn: (a: BN, b: BN) => a.eq(b)
+        compareFn: (a: BN, b: BN) => a.eq(b),
       })
     )
   );
 
-  constructor(readonly eth: Eth) {}
+  constructor(readonly eth: Eth, readonly name: string, readonly icon: string) {}
 
   async getAccount(): Promise<Address> {
     const accounts = await this.eth.accounts();
@@ -82,7 +102,7 @@ class MetaMaskWallet implements Wallet {
         pollDifferences({
           period: 100,
           poller: () => tokenContract.balanceOf(account),
-          compareFn: (a: BN, b: BN) => a.eq(b)
+          compareFn: (a: BN, b: BN) => a.eq(b),
         })
       )
     );
@@ -93,27 +113,17 @@ class MetaMaskWallet implements Wallet {
       const account = await this.getAccount();
       const dexdex = DexDex(this.eth, DEXDEX_ADDRESS);
       const ordersData = tx.getOrderParameters();
-      return await dexdex.buy(
-        token.address,
-        tx.currentVolume,
-        ordersData,
-        NOAFFILIATE,
-        {
-          from: account,
-          value: tx.currentVolumeEthUpperBound,
-          gasPrice
-        }
-      );
+      return await dexdex.buy(token.address, tx.currentVolume, ordersData, NOAFFILIATE, {
+        from: account,
+        value: tx.currentVolumeEthUpperBound,
+        gasPrice,
+      });
     } catch (err) {
       throw toWalletError(err);
     }
   }
 
-  async dexdexSell(
-    token: Token,
-    gasPrice: BN,
-    tx: TransactionInfo
-  ): Promise<string> {
+  async dexdexSell(token: Token, gasPrice: BN, tx: TransactionInfo): Promise<string> {
     try {
       const account = await this.getAccount();
       const dexdex = DexDex(this.eth, DEXDEX_ADDRESS);
@@ -137,7 +147,7 @@ class MetaMaskWallet implements Wallet {
       try {
         txReceipt = await this.eth.getTransactionReceipt(txId);
       } catch (err) {
-        console.log("errror", err);
+        console.log('errror', err);
       }
     }
 
@@ -162,10 +172,10 @@ class MetaMaskWallet implements Wallet {
   }
 }
 
-export async function tryGet(): Promise<MetaMaskWallet | null> {
+export async function tryGet(): Promise<InjectedWallet | null> {
   const mEth = await getOnLoad(getWeb3);
   if (mEth) {
-    return new MetaMaskWallet(mEth);
+    return new InjectedWallet(mEth.eth, mEth.name, mEth.icon);
   }
   return null;
 }

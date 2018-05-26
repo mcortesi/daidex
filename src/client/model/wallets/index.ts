@@ -1,12 +1,13 @@
-import { BN } from "bn.js";
-import { Address } from "../base";
-import * as metamask from "./metamask";
-import { Observable } from "rxjs";
-import { TransactionInfo } from "../orderbook";
-import { Token } from "../widget";
+import { BN } from 'bn.js';
+import { Address } from '../base';
+import * as injected from './injected';
+import { Observable } from 'rxjs';
+import { TransactionInfo } from '../orderbook';
+import { Token } from '../widget';
 
 export interface Wallet {
   name: string;
+  icon: string;
   account: Observable<Address>;
   etherBalance: Observable<BN>;
   tradeableBalance: (token: Token) => Observable<BN>;
@@ -21,9 +22,9 @@ export interface Wallet {
 export async function getWallets(): Promise<Wallet[]> {
   const wallets: Wallet[] = [];
 
-  const mMetaMask = await metamask.tryGet();
-  if (mMetaMask) {
-    wallets.push(mMetaMask);
+  const mInjected = await injected.tryGet();
+  if (mInjected) {
+    wallets.push(mInjected);
   }
 
   return wallets;
