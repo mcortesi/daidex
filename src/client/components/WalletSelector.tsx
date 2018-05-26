@@ -36,7 +36,9 @@ class WalletSelector extends React.Component<WalletSelectorProps> {
                     {toEther(walletDetails.daiBalance)} DAI
                   </span>
                 </p>
-                <p className="wallet-id">{walletDetails.address}</p>
+                <p className="wallet-id">
+                  {walletDetails.address ? walletDetails.address : 'None Selected'}
+                </p>
               </React.Fragment>
             )}
           </div>

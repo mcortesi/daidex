@@ -24,7 +24,7 @@ export type WidgetScreen =
   | 'waitingTrade';
 
 export interface WalletDetails {
-  address: Address;
+  address: Address | null;
   etherBalance: BN;
   daiBalance: BN;
   tradeableBalance: BN | null;
@@ -81,6 +81,7 @@ export async function initWidget(apiOpts: ApiOptions, widgetId: string) {
     walletDetails: null,
     isValidAmount: false,
     currentTransaction: null,
+    currentTransactionDai: null,
     tradeTxHash: null,
     approvalTxHash: null,
   };

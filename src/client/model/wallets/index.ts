@@ -8,13 +8,13 @@ import { Token } from '../widget';
 export interface Wallet {
   name: string;
   icon: string;
-  account: Observable<Address>;
+  account: Observable<Address | null>;
   etherBalance: Observable<BN>;
   tradeableBalance: (token: Token) => Observable<BN>;
   daiBalance: () => Observable<BN>;
   daiAmount: (op: Operation, amount: BN) => Promise<BN>;
 
-  getAccount(): Promise<Address>;
+  getAccount(): Promise<Address | null>;
 
   dexdexBuy(token: Token, gasPrice: BN, tx: TransactionInfo): Promise<string>;
   dexdexSell(token: Token, gasPrice: BN, tx: TransactionInfo): Promise<string>;

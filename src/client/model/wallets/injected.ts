@@ -1,6 +1,6 @@
 import { BN } from 'bn.js';
 import Eth, { TransactionReceipt } from 'ethjs-query';
-import { Observable } from 'rxjs';
+import { Observable, never, of } from 'rxjs';
 import { publishReplay, refCount, switchMap } from 'rxjs/operators';
 import { Wallet } from '.';
 import { pollDifferences } from '../../utils/rx';
@@ -82,46 +82,58 @@ class InjectedWallet implements Wallet {
   }).pipe(publishReplay(1), refCount());
 
   etherBalance = this.account.pipe(
-    switchMap(account =>
-      pollDifferences({
-        period: 60 * 1000,
-        poller: () => this.eth.getBalance(account),
-        compareFn: (a: BN, b: BN) => a.eq(b),
-      })
-    )
+    switchMap(account => {
+      if (account) {
+        return pollDifferences({
+          period: 60 * 1000,
+          poller: () => this.eth.getBalance(account),
+          compareFn: (a: BN, b: BN) => a.eq(b),
+        });
+      } else {
+        return of(new BN(0));
+      }
+    })
   );
 
   constructor(readonly eth: Eth, readonly name: string, readonly icon: string) {}
 
-  async getAccount(): Promise<Address> {
+  async getAccount(): Promise<Address | null> {
     const accounts = await this.eth.accounts();
-    return accounts[0];
+    return accounts[0] || null;
   }
 
   daiBalance(): Observable<BN> {
     const tokenContract = Erc20(this.eth, DAI_ADDRESS);
 
     return this.account.pipe(
-      switchMap(account =>
-        pollDifferences({
-          period: 60 * 1000,
-          poller: () => tokenContract.balanceOf(account),
-          compareFn: (a: BN, b: BN) => a.eq(b),
-        })
-      )
+      switchMap(account => {
+        if (account) {
+          return pollDifferences({
+            period: 60 * 1000,
+            poller: () => tokenContract.balanceOf(account),
+            compareFn: (a: BN, b: BN) => a.eq(b),
+          });
+        } else {
+          return of(new BN(0));
+        }
+      })
     );
   }
   tradeableBalance(token: Token): Observable<BN> {
     const tokenContract = Erc20(this.eth, token.address);
 
     return this.account.pipe(
-      switchMap(account =>
-        pollDifferences({
-          period: 60 * 1000,
-          poller: () => tokenContract.balanceOf(account),
-          compareFn: (a: BN, b: BN) => a.eq(b),
-        })
-      )
+      switchMap(account => {
+        if (account) {
+          return pollDifferences({
+            period: 60 * 1000,
+            poller: () => tokenContract.balanceOf(account),
+            compareFn: (a: BN, b: BN) => a.eq(b),
+          });
+        } else {
+          return of(new BN(0));
+        }
+      })
     );
   }
 
@@ -138,6 +150,9 @@ class InjectedWallet implements Wallet {
   async dexdexBuy(token: Token, gasPrice: BN, tx: TransactionInfo) {
     try {
       const account = await this.getAccount();
+      if (account == null) {
+        throw new Error('No selecte account');
+      }
       const dexdex = DexDex(this.eth, DEXDEX_ADDRESS);
       const ordersData = tx.getOrderParameters();
       return await dexdex.buy(token.address, tx.currentVolume, ordersData, NOAFFILIATE, {
@@ -153,6 +168,9 @@ class InjectedWallet implements Wallet {
   async dexdexSell(token: Token, gasPrice: BN, tx: TransactionInfo): Promise<string> {
     try {
       const account = await this.getAccount();
+      if (account == null) {
+        throw new Error('No selecte account');
+      }
       const dexdex = DexDex(this.eth, DEXDEX_ADDRESS);
       const ordersData = tx.getOrderParameters();
       return await dexdex.sell(
