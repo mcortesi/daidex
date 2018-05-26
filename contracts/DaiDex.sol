@@ -33,7 +33,7 @@ contract IDexdex {
 }
 
 contract DaiDex /*is Migratable*/ {
-      IDaiMatchingMarket daiMatchingMarket = IDaiMatchingMarket(0x14FBCA95be7e99C15Cc2996c6C9d841e54B79425);
+      IDaiMatchingMarket daiMatchingMarket = IDaiMatchingMarket(0x14fbca95be7e99c15cc2996c6c9d841e54b79425);
       IDexdex dexdex = IDexdex(0x0c577fBF29f8797D9D29A33dE59001B872a1d4dc);
       IStandardToken dai = IStandardToken(0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359);
       IWeth weth = IWeth(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
