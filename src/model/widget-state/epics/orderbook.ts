@@ -7,7 +7,7 @@ import { Observable, interval } from 'rxjs';
 import { Change } from '../store';
 import { WidgetState } from '..';
 
-const POLL_INTERVAL = 2 * 60 * 1000; // 2 minutes
+const POLL_INTERVAL = 30 * 1000; // 30 secs
 
 export const orderbook = (api: ServerApi): WidgetEpic => (
   changes: Observable<Change<WidgetState, Actions>>

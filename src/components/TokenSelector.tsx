@@ -3,6 +3,10 @@ import Select, { Option } from 'react-select';
 import 'react-select/dist/react-select.css';
 import { Operation } from '../model/base';
 import { Token } from '../model/widget';
+import { ImageLoader } from './ImageLoad';
+
+// @ts-ignore
+import defaultTokenImg from './button.png';
 
 export interface TokenSelectorProps {
   operation: Operation;
@@ -16,8 +20,9 @@ class TokenSelector extends React.PureComponent<TokenSelectorProps> {
     const token = this.props.tokens[option.value!];
     return (
       <div className="select-symbol-name">
-        <img
+        <ImageLoader
           className="token-symbol"
+          fallback={defaultTokenImg}
           src={`https://easytrade.io/assets/tokens/${token.symbol.toLowerCase()}.png`}
           alt={token.symbol}
         />
@@ -30,8 +35,9 @@ class TokenSelector extends React.PureComponent<TokenSelectorProps> {
     const token = this.props.tokens[option.value!];
     return (
       <div className="select-icon-name">
-        <img
+        <ImageLoader
           className="token-symbol"
+          fallback={defaultTokenImg}
           src={`https://easytrade.io/assets/tokens/${token.symbol.toLowerCase()}.png`}
           alt={token.symbol}
         />
@@ -48,7 +54,6 @@ class TokenSelector extends React.PureComponent<TokenSelectorProps> {
         className="token-selector col"
         name="token"
         clearable={false}
-        searchable={false}
         optionRenderer={this.optionRenderer}
         valueRenderer={this.valueRenderer}
         value={selectedToken ? tokens.indexOf(selectedToken) : -1}

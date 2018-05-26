@@ -91,13 +91,6 @@ const WidgetForm: React.SFC<WidgetFormProps> = props => (
     </div>
     <WalletSelector selectedWallet={props.wallet} walletDetails={props.walletDetails} />
     <div className="summary">
-      <div className="summary-token margin-bottom">
-        <div className="summary-token-price flex-grid">
-          <label className="col">{props.tradeable.symbol} Price</label>
-          <div className="summary-token-price-value value col">{props.txDAI} DAI</div>
-        </div>
-      </div>
-
       <GasPriceSelector
         value={props.gasPrice}
         totalETHCost={props.networkFee.ether}
@@ -107,7 +100,7 @@ const WidgetForm: React.SFC<WidgetFormProps> = props => (
 
       <div className="summary-total flex-grid">
         <label className="col">Total</label>
-        <div className="summary-total-value value col">{props.txEtherRange.max}</div>
+        <div className="summary-total-value value col">{props.txDAI} DAI</div>
       </div>
     </div>
     <div className="flex-grid">
