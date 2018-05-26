@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "localnet":
+      "ganache-cli i--port 9545 --mnemonic \"priority pact super diesel velvet brief bid stable kangaroo surface sense tank\" "
+  },
   "devDependencies": {
     "ganache-cli": "^6.1.0",
     "zos": "^1.0.0"
