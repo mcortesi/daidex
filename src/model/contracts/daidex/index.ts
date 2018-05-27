@@ -23,11 +23,20 @@ export class DaiDex {
     ordersData: string,
     txOptions: TxOptions
   ): Promise<string> {
+    console.log(
+      'daidex:buy',
+      tokenToBuy,
+      volumeTokenToBuy.toString(10),
+      volumeDai.toString(10),
+      volumeEth.toString(10),
+      ordersData,
+      txOptions
+    );
     return await this.contract.buy(
       tokenToBuy,
-      volumeTokenToBuy,
-      volumeDai,
-      volumeEth,
+      volumeTokenToBuy.toString(10),
+      volumeDai.toString(10),
+      volumeEth.toString(10),
       ordersData,
       txOptions
     );

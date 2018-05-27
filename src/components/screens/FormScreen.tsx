@@ -98,6 +98,10 @@ const WidgetForm: React.SFC<WidgetFormProps> = props => (
         onChange={props.actions.setGasPrice}
       />
 
+      <div className="summary-token flex-grid">
+        <label className="col" />
+        <div className="summary-token-value value col">{props.txEtherRange.max} ETH</div>
+      </div>
       <div className="summary-total flex-grid">
         <label className="col">Total</label>
         <div className="summary-total-value value col">{props.txDAI} DAI</div>
