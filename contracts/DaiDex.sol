@@ -19,6 +19,7 @@ contract IDaiMatchingMarket {
     function sellAllAmount(IStandardToken pay_gem, uint pay_amt, IStandardToken buy_gem, uint min_fill_amount) public returns (uint fill_amt) {}
     function buyAllAmount(IStandardToken buy_gem, uint buy_amt, IStandardToken pay_gem, uint max_fill_amount) public returns (uint fill_amt) {}
     function getBuyAmount(IStandardToken buy_gem, IStandardToken pay_gem, uint pay_amt) public constant returns (uint fill_amt) {}
+    function getPayAmount(IStandardToken pay_gem, IStandardToken buy_gem, uint buy_amt) public constant returns (uint fill_amt) {}
 }
 
 contract IDexdex {
@@ -59,18 +60,19 @@ contract DaiDex /*is Migratable*/ {
    * Buys ECR20 Token using DAI, only if the exchanged amount of DAI to ETH doesn't exceed a given ETH amount.
    */
   function buy(IStandardToken tokenToBuy, uint volumeTokenToBuy, uint volumeDai, uint volumeEth, bytes ordersData) {
+
+    // We check that we can still buy volumeEth with those volumeDai
+    uint volumeDaiEffective = daiMatchingMarket.getPayAmount(dai, weth, volumeEth);
+    require(volumeDaiEffective <= volumeDai);
+
     // Obtain Dai From Sender. Sender previously executed a transaction approving Dai transfer to this contract.
-    require(dai.transferFrom(msg.sender, this, volumeDai));
-    dai.approve(address(daiMatchingMarket), volumeDai);
+    require(dai.transferFrom(msg.sender, this, volumeDaiEffective));
+    // allow matchingMarket to trade for us
+    dai.approve(address(daiMatchingMarket), volumeDaiEffective);
+    daiMatchingMarket.buyAllAmount(weth, volumeEth, dai, volumeDaiEffective);
+    weth.withdraw(volumeEth);
 
-    uint volumeWethEffective = daiMatchingMarket.getBuyAmount(weth, dai, volumeDai);
-
-    daiMatchingMarket.buyAllAmount(weth, volumeWethEffective, dai, volumeDai);
-    //require(volumeWethEffective >= volumeEth, "Effective Eth Volume is lower than expected");
-    weth.withdraw(volumeWethEffective);
-
-    dexdex.buy.value(volumeWethEffective)(tokenToBuy, volumeTokenToBuy, ordersData, msg.sender, address(0));
-
+    dexdex.buy.value(volumeEth)(tokenToBuy, volumeTokenToBuy, ordersData, msg.sender, address(0));
   }
 
   function sell(IStandardToken tokenToSell, uint volumeTokenToSell, uint volumeDai, uint volumeEth, bytes ordersData) {
