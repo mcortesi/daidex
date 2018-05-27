@@ -19,7 +19,7 @@ export class MatchingMarket {
   }
 
   async getPayAmount(payGem: Address, buyGem: Address, buyAmount: BN): Promise<BN> {
-    return (await this.contract.getBuyAmount(payGem, buyGem, buyAmount))[0];
+    return (await this.contract.getPayAmount(payGem, buyGem, buyAmount))[0];
   }
 }
 

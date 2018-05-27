@@ -13,7 +13,7 @@ import { Token } from '../widget';
 import * as WalletErrors from './errors';
 
 // This will resolve on build
-const DEXDEX_ADDRESS = process.env.DEXDEX_CONTRACT!;
+const DaiDexAddress = process.env.DAIDEX_ADDRESS!;
 const NOAFFILIATE = '0x0000000000000000000000000000000000000000';
 
 const WETH_ADDRESS: string = process.env.WETH_ADDRESS!;
@@ -140,11 +140,17 @@ class InjectedWallet implements Wallet {
   async daiAmount(operation: Operation, volumeEth: BN) {
     const daiMarket = DAIMarket(this.eth);
 
+    let amountWithoutFee: BN;
     if (operation === 'buy') {
-      return await daiMarket.getPayAmount(DAI_ADDRESS, WETH_ADDRESS, volumeEth);
+      amountWithoutFee = await daiMarket.getPayAmount(DAI_ADDRESS, WETH_ADDRESS, volumeEth);
+      console.log('opppppppppppppppp', amountWithoutFee.toString(10));
     } else {
-      return await daiMarket.getBuyAmount(DAI_ADDRESS, WETH_ADDRESS, volumeEth);
+      amountWithoutFee = await daiMarket.getBuyAmount(DAI_ADDRESS, WETH_ADDRESS, volumeEth);
     }
+
+    console.log('dai amount', amountWithoutFee.toString());
+    console.log('volEth', volumeEth.toString());
+    return amountWithoutFee;
   }
 
   async dexdexBuy(token: Token, gasPrice: BN, tx: TransactionInfo, daiVolume: BN) {
@@ -158,7 +164,7 @@ class InjectedWallet implements Wallet {
       return await dexdex.buy(
         token.address,
         tx.currentVolume,
-        daiVolume,
+        daiVolume.muln(101).divn(100),
         tx.currentVolumeEthUpperBound,
         ordersData,
         {
@@ -216,7 +222,7 @@ class InjectedWallet implements Wallet {
       throw new Error('No selected account');
     }
     const tokenContract = Erc20(this.eth, token.address);
-    return tokenContract.approve(DEXDEX_ADDRESS, volume, { from: account, gasPrice });
+    return tokenContract.approve(DaiDexAddress, volume, { from: account, gasPrice });
   }
 
   async approveDAIAllowance(volume: BN, gasPrice: BN): Promise<string> {
@@ -225,7 +231,7 @@ class InjectedWallet implements Wallet {
       throw new Error('No selected account');
     }
     const tokenContract = Erc20(this.eth, DAI_ADDRESS);
-    return tokenContract.approve(DEXDEX_ADDRESS, volume, { from: account, gasPrice });
+    return tokenContract.approve(DaiDexAddress, volume, { from: account, gasPrice });
   }
 }
 

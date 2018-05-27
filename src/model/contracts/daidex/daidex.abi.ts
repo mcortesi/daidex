@@ -23,6 +23,11 @@ export default [
     type: 'constructor',
   },
   {
+    payable: true,
+    stateMutability: 'payable',
+    type: 'fallback',
+  },
+  {
     constant: false,
     inputs: [
       {
