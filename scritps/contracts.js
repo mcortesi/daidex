@@ -216,22 +216,55 @@ async function deployContracts(eth, contractsPath, logger) {
     }
   );
 
-  dai.approve(daidex.address, {
-    from: accounts[0],
-    gas: 160000,
-  });
+  // cuanto DAI necesito para comprar 1 ETH? = 600000000000000000000
+  // const res = await matchingMarket.getPayAmount(
+  //   dai.address,
+  //   weth.address,
+  //   unit.toWei('1', 'ether'),
+  //   { from: buyer }
+  // );
 
-  daidex.buy(
-    '0xb04a0e88b962dce5c4be1a47674ece99452d9dec',
-    '3000000000000000000',
-    '556000000000000000000',
-    '900000000000000000',
-    '0x011855c1465931ddee6a311309f7823318b4e59be61db292683f8c9579e74567bbae42f0d5d5fae88d0209b798f4d481dd7166795d1b001e58906e25bb788a9a1c8ab2196c35a472f74d34806a957d0470a30e67dc000000000000000000000000000000000000000000000000000001639f19f920000000000000000000000000000000000000000000000000000000000000008e0000000000000000000000000000000000000000000000008ac7230489e80000b04a0e88b962dce5c4be1a47674ece99452d9dec0000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000000000000000000001',
-    {
-      from: accounts[0],
-      gas: 1560000,
-    }
-  );
+  // console.log('required DAI for 1eth', res[0].toString());
+
+  // const res2 = await matchingMarket.buyAllAmount(
+  //   weth.address,
+  //   unit.toWei('1', 'ether'),
+  //   dai.address,
+  //   '600000000000000000000',
+  //   { from: buyer }
+  // );
+
+  // console.log('remaining DAI after buy', res2[0].toString());
+
+  // const buyer = accounts[2];
+  // await dai.transfer(buyer, '1000000000000000000000', { from: accounts[0], gas: 160000 });
+
+  // const daiBalanceBefore = await dai.balanceOf(buyer);
+  // const wethBalanceBefore = await weth.balanceOf(buyer);
+  // console.log('dai Balance', daiBalanceBefore[0].toString());
+  // console.log('weth Balance', wethBalanceBefore[0].toString());
+  // await dai.approve(daidex.address, {
+  //   from: buyer,
+  //   gas: 160000,
+  // });
+
+  // await daidex.buy(
+  //   '0xb04a0e88b962dce5c4be1a47674ece99452d9dec',
+  //   '5000000000000000000',
+  //   '600000000000000000000', //'556000000000000000000',
+  //   unit.toWei('1', 'ether'), //'900000000000000000',
+  //   '0x700d4d2d7825b5668506e5d3588feb2f769a5e891f9fd8c18d179293cefae6b6214734aa05c7eca01f1fcf19a6f80ca58833d67095ee94cca897f8ef3aa7ccbb1b9e2d981edd0f4292961a77bacbb3e9cfc0c43637000000000000000000000000000000000000000000000000000001639fc85a3900000000000000000000000000000000000000000000000000000000000000830000000000000000000000000000000000000000000000008ac7230489e80000b04a0e88b962dce5c4be1a47674ece99452d9dec0000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000000000000000000001',
+  //   {
+  //     from: buyer,
+  //     gas: 1560000,
+  //   }
+  // );
+
+  // const daiBalanceAfter = await dai.balanceOf(buyer);
+  // const wethBalanceAfter = await weth.balanceOf(buyer);
+  // console.log('dai Balance', daiBalanceAfter[0].toString());
+  // console.log('weth Balance', wethBalanceAfter[0].toString());
+  // console.log('consumed dai', daiBalanceBefore[0].sub(daiBalanceAfter[0]).toString());
 
   return {
     daidex,

@@ -9,4 +9,7 @@ function getHttpEth() {
 }
 
 const eth = getHttpEth();
-deployContracts(eth, process.env.CONTRACTS_PATH, cli.info);
+deployContracts(eth, process.env.CONTRACTS_PATH, cli.info).catch(err => {
+  console.log(err);
+  process.exit(1);
+});
