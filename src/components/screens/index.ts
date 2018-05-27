@@ -6,7 +6,7 @@ import { Screen as RequestAllowanceScreen } from './RequestAllowanceScreen';
 
 import * as tradeSuccess from './TradeSuccessScreen';
 import * as tradeProgress from './TradeProgressScreen';
-import { getTokenAllowanceInfo } from '../../model/widget-state/selectors';
+import { getTokenAllowanceInfo, getDAIAllowanceInfo } from '../../model/widget-state/selectors';
 
 export type RenderMapper<T> = (store: WidgetStore) => (ws: WidgetState) => T;
 
@@ -28,11 +28,11 @@ const screens: Record<WidgetScreen, Screen<any>> = {
     Screen: RequestAllowanceScreen,
   },
   signatureDAIApproval: {
-    mapper: () => getTokenAllowanceInfo,
+    mapper: () => getDAIAllowanceInfo,
     Screen: RequestAllowanceScreen,
   },
   waitingDAIApproval: {
-    mapper: () => getTokenAllowanceInfo,
+    mapper: () => getDAIAllowanceInfo,
     Screen: RequestAllowanceScreen,
   },
   signatureTrade: tradeProgress,

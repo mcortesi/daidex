@@ -147,7 +147,7 @@ function reducer(oldState: WidgetState, action: Actions) {
   } else if (anyChanged('amount')) {
     // only the amount changed. Maybe the current computed transaction is still valid
     const volumeTD = toTokenDecimals(st.amount, st.tradeable.decimals);
-    if (st.currentTransaction!.canHandle(volumeTD)) {
+    if (st.currentTransaction && st.currentTransaction.canHandle(volumeTD)) {
       st.currentTransaction!.changeVolume(volumeTD);
     } else {
       // current is not valid => recompute

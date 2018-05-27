@@ -28,9 +28,9 @@ export const mapper: RenderMapper<TradeProgressScreen> = store => ws => ({
 const TradeProgressScreen: React.SFC<TradeProgressScreen> = props => (
   <div className="widget-status">
     {props.txHash ? (
-      <h1 className="waiting">Trade: Waiting tx mining</h1>
+      <h1 className="waiting">Waiting tx mining</h1>
     ) : (
-      <h1 className="waiting">Trade: Waiting Confirmation</h1>
+      <h1 className="waiting">Please approve the trade</h1>
     )}
     <dl>
       <dt className="label">Operation</dt>
@@ -56,9 +56,9 @@ const TradeProgressScreen: React.SFC<TradeProgressScreen> = props => (
     {props.txHash && (
       <React.Fragment>
         <p className="label">Transaction Hash</p>
-        <a className="link" href="#">
-          {props.txHash}
-        </a>
+        {/* <a className="link" href="#"> */}
+        {props.txHash}
+        {/* </a> */}
       </React.Fragment>
     )}
     <hr />

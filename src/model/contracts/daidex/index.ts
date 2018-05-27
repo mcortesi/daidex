@@ -41,6 +41,16 @@ export class DaiDex {
     ordersData: string,
     txOptions: TxOptions
   ): Promise<string> {
+    console.log(
+      'daidex:sell',
+      tokenToSell,
+      volumeTokenToSell,
+      volumeDai,
+      volumeEth,
+      ordersData,
+      txOptions
+    );
+
     return await this.contract.sell(
       tokenToSell,
       volumeTokenToSell,

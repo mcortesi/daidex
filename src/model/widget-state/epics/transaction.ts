@@ -50,6 +50,7 @@ async function executeTransaction(
       reportState({ stage: TxStage.Completed });
     }
   } catch (err) {
+    console.error(err);
     if (err.name === 'WalletError' && err.codeName === 'SignatureRejected') {
       reportState({ stage: TxStage.SignatureRejected });
     } else {
