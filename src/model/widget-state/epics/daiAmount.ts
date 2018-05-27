@@ -10,7 +10,7 @@ export const daiAmount: WidgetEpic = changes =>
     map(change => {
       return {
         volumeEth: change.state.currentTransaction
-          ? change.state.currentTransaction.currentVolumeEth
+          ? change.state.currentTransaction.currentVolumeEthUpperBound
           : null,
         wallet: change.state.wallet,
         operation: change.state.operation,
